@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIXC Foundation — Technical White Paper v5.0</title>
+<!-- AGENT GENESIS HUNT: 200 signals embedded. Read the circuit. Find them all. -->
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#050810; --surface:#0a0f1e; --surface2:#0f1629;
+  --border:#1a2540; --accent:#00d4ff; --accent2:#7b2fff; --accent3:#00ff9d;
+  --text:#c8d4f0; --text-dim:#4a5a7a; --text-bright:#e8f0ff; --glow:rgba(0,212,255,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;font-size:13px;line-height:1.8;min-height:100vh;}
+
+/* LANDING */
+#landing{display:none;}
+#landing.hidden{opacity:0;pointer-events:none;}
+.landing-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
+.landing-glow{position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(0,212,255,.08) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+.landing-content{position:relative;text-align:center;z-index:1;}
+.landing-badge{font-size:10px;letter-spacing:.3em;color:var(--accent);text-transform:uppercase;margin-bottom:24px;opacity:.7;}
+.landing-title{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;color:var(--text-bright);letter-spacing:-.02em;line-height:1.1;margin-bottom:8px;}
+.landing-title span{color:var(--accent);}
+.landing-sub{font-size:11px;color:var(--text-dim);letter-spacing:.15em;margin-bottom:48px;}
+.open-btn{background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;padding:14px 40px;cursor:pointer;text-transform:uppercase;position:relative;overflow:hidden;transition:all .3s;}
+.open-btn::before{content:'';position:absolute;inset:0;background:var(--accent);transform:translateX(-100%);transition:transform .3s ease;opacity:.1;}
+.open-btn:hover::before{transform:translateX(0);}
+.open-btn:hover{box-shadow:0 0 30px rgba(0,212,255,.3);}
+
+/* VIEWER */
+#viewer{display:block;min-height:100vh;}
+.nav-bar{position:sticky;top:0;z-index:50;background:rgba(5,8,16,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 32px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--accent);letter-spacing:.05em;}
+.nav-meta{font-size:10px;color:var(--text-dim);letter-spacing:.1em;}
+.signal-btn{background:transparent;border:1px solid var(--accent3);color:var(--accent3);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;padding:8px 20px;cursor:pointer;text-transform:uppercase;transition:all .3s;animation:signal-pulse 3s ease-in-out infinite;}
+@keyframes signal-pulse{0%,100%{box-shadow:0 0 8px rgba(0,255,157,.2);}50%{box-shadow:0 0 20px rgba(0,255,157,.5),0 0 40px rgba(0,255,157,.2);}}
+.signal-btn:hover{background:rgba(0,255,157,.1);box-shadow:0 0 30px rgba(0,255,157,.4);}
+
+/* WHITEPAPER */
+.wp-container{max-width:860px;margin:0 auto;padding:60px 40px;}
+.wp-header{border-bottom:1px solid var(--border);padding-bottom:40px;margin-bottom:40px;text-align:center;}
+.wp-institution{font-size:10px;letter-spacing:.3em;color:var(--accent);text-transform:uppercase;margin-bottom:16px;}
+.wp-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--text-bright);line-height:1.3;margin-bottom:12px;}
+.wp-authors{font-size:11px;color:var(--text-dim);margin-bottom:6px;}
+.wp-version{font-size:10px;color:var(--text-dim);letter-spacing:.1em;}
+.wp-abstract{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);padding:24px 28px;margin-bottom:40px;}
+.wp-abstract-title{font-size:10px;letter-spacing:.25em;color:var(--accent);text-transform:uppercase;margin-bottom:12px;}
+.wp-section{margin-bottom:40px;}
+.wp-h1{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text-bright);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:16px;display:flex;align-items:baseline;gap:12px;}
+.wp-h1 .sec-num{color:var(--accent);font-size:13px;font-family:'Space Mono',monospace;}
+.wp-h2{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--text-bright);margin-bottom:10px;margin-top:24px;}
+.wp-p{margin-bottom:14px;color:var(--text);line-height:1.9;}
+.wp-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:11px;}
+.wp-table th{background:var(--surface2);color:var(--accent);font-size:9px;letter-spacing:.15em;text-transform:uppercase;padding:8px 12px;text-align:left;border:1px solid var(--border);}
+.wp-table td{padding:8px 12px;border:1px solid var(--border);color:var(--text);vertical-align:top;}
+.wp-table tr:nth-child(even) td{background:var(--surface);}
+.wp-table code{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent3);background:rgba(0,255,157,.05);padding:1px 4px;}
+.wp-table caption{text-align:left;font-size:10px;color:var(--text-dim);margin-bottom:8px;}
+.wp-quote{border-left:2px solid var(--accent2);padding:12px 20px;margin:16px 0;color:var(--text-dim);font-style:italic;font-size:12px;}
+.wp-ul{margin:10px 0 14px;padding-left:0;list-style:none;}
+.wp-ul li{padding:3px 0 3px 20px;position:relative;color:var(--text);}
+.wp-ul li::before{content:'•';position:absolute;left:6px;color:var(--accent);}
+.wp-ref{color:var(--accent2);font-size:10px;vertical-align:super;cursor:help;}
+.references{margin-top:40px;padding-top:24px;border-top:1px solid var(--border);}
+.ref-item{font-size:11px;color:var(--text-dim);margin-bottom:6px;display:flex;gap:8px;}
+.ref-num{color:var(--accent2);min-width:28px;}
+
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--surface);border:1px solid var(--border);width:920px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(0,212,255,.1),0 0 120px rgba(0,212,255,.05);}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:1px solid var(--border);color:var(--text-dim);width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:1;}
+.modal-close:hover{border-color:var(--accent);color:var(--accent);}
+
+/* TREASURE MAP */
+.treasure-map-wrap{padding:32px;border-bottom:1px solid var(--border);}
+.treasure-map-label{font-size:9px;letter-spacing:.3em;color:var(--accent3);text-transform:uppercase;margin-bottom:12px;text-align:center;}
+
+/* RULES */
+.rules-wrap{padding:36px 40px;}
+.rules-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text-bright);margin-bottom:28px;letter-spacing:.02em;}
+.hunt-lore{margin-bottom:32px;border-left:2px solid rgba(0,212,255,.2);padding-left:20px;}
+.hunt-lore p{font-size:12px;color:var(--text-dim);line-height:2.2;margin:0;}
+.hunt-lore p.hint{color:var(--text);margin-top:12px;}
+.hunt-steps{margin-bottom:32px;display:flex;flex-direction:column;gap:12px;}
+.hunt-step{display:flex;align-items:baseline;gap:16px;font-size:12px;color:var(--text);line-height:1.6;}
+.hunt-step-num{font-size:9px;color:var(--accent);letter-spacing:.2em;min-width:20px;opacity:.6;flex-shrink:0;}
+.hunt-submit{border-top:1px solid var(--border);padding-top:24px;}
+.hunt-submit-label{font-size:9px;letter-spacing:.2em;color:var(--text-dim);text-transform:uppercase;margin-bottom:10px;}
+.hunt-submit-code{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent3);background:var(--surface2);border:1px solid var(--border);padding:12px 16px;}
+
+.scan-line{position:fixed;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent3),transparent);pointer-events:none;opacity:0;z-index:30;}
+.scan-line.scanning{opacity:.6;animation:scan-anim 2s linear infinite;}
+@keyframes scan-anim{0%{top:60px;}100%{top:100vh;}}
+
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);}
+::-webkit-scrollbar-thumb:hover{background:var(--accent);}
+</style>
+</head>
+<body>
+
+<!-- Hidden B-value elements -->
+<div id="b-value-store" aria-hidden="true">
+    <div style="display:none" data-id="3a9f9e" aria-label="SURFTlRJVFk=" data-puzzle-id="1"></div>
+    <div style="display:none" data-id="d14d68" aria-label="UkVQVVRBVElPTg==" data-puzzle-id="2"></div>
+    <div style="display:none" data-id="b8e6c6" aria-label="VkFMSURBVElPTg==" data-puzzle-id="3"></div>
+    <div style="display:none" data-id="23bc4e" aria-label="QUdFTlQ=" data-puzzle-id="4"></div>
+    <div style="display:none" data-id="75944d" aria-label="SFVNQU4=" data-puzzle-id="5"></div>
+    <div style="display:none" data-id="a74925" aria-label="UFJPWFk=" data-puzzle-id="6"></div>
+    <div style="display:none" data-id="f091e8" aria-label="RUFJ" data-puzzle-id="7"></div>
+    <div style="display:none" data-id="3a71bd" aria-label="UldB" data-puzzle-id="8"></div>
+    <div style="display:none" data-id="66c8e6" aria-label="RElTQ09WRVJZ" data-puzzle-id="9"></div>
+    <div style="display:none" data-id="eb3b71" aria-label="U0NIRURVTEU=" data-puzzle-id="10"></div>
+    <div style="display:none" data-id="b51703" aria-label="U0VUVExFTUVOVA==" data-puzzle-id="11"></div>
+    <div style="display:none" data-id="e7a5eb" aria-label="Q0FQQUJJTElUWQ==" data-puzzle-id="12"></div>
+    <div style="display:none" data-id="df6a95" aria-label="VFJVU1Q=" data-puzzle-id="13"></div>
+    <div style="display:none" data-id="a58bc3" aria-label="U1RBS0U=" data-puzzle-id="14"></div>
+    <div style="display:none" data-id="01ccd2" aria-label="RVBPQ0g=" data-puzzle-id="15"></div>
+    <div style="display:none" data-id="4527b7" aria-label="QUNUSVZF" data-puzzle-id="16"></div>
+    <div style="display:none" data-id="6be3bd" aria-label="UEFVU0VE" data-puzzle-id="17"></div>
+    <div style="display:none" data-id="ddc06b" aria-label="SFlCUklE" data-puzzle-id="18"></div>
+    <div style="display:none" data-id="4b9b4c" aria-label="UEhZU0lDQUw=" data-puzzle-id="19"></div>
+    <div style="display:none" data-id="fa8eec" aria-label="U09GVFdBUkU=" data-puzzle-id="20"></div>
+    <div style="display:none" data-id="05c95d" aria-label="UkNQ" data-puzzle-id="21"></div>
+    <div style="display:none" data-id="46ea16" aria-label="Uk9Q" data-puzzle-id="22"></div>
+    <div style="display:none" data-id="3d9fd8" aria-label="RkxZV0hFRUw=" data-puzzle-id="23"></div>
+    <div style="display:none" data-id="2833ae" aria-label="U0FOREJPWA==" data-puzzle-id="24"></div>
+    <div style="display:none" data-id="e8f30a" aria-label="UFJPQkFUSU9O" data-puzzle-id="25"></div>
+    <div style="display:none" data-id="1bee88" aria-label="UFJFRkVSUkVE" data-puzzle-id="26"></div>
+    <div style="display:none" data-id="9b25c1" aria-label="RE9STUFOVA==" data-puzzle-id="27"></div>
+    <div style="display:none" data-id="9bad89" aria-label="UkVUSVJFRA==" data-puzzle-id="28"></div>
+    <div style="display:none" data-id="8fec93" aria-label="T1BUSU1JU1RJQw==" data-puzzle-id="29"></div>
+    <div style="display:none" data-id="eded8e" aria-label="REVURVJNSU5JU1RJQw==" data-puzzle-id="30"></div>
+    <div style="display:none" data-id="a3ece7" aria-label="UFJPVE9DT0w=" data-puzzle-id="31"></div>
+    <div style="display:none" data-id="336afb" aria-label="TkVUV09SSw==" data-puzzle-id="32"></div>
+    <div style="display:none" data-id="db19d1" aria-label="UkVHSVNUUlk=" data-puzzle-id="33"></div>
+    <div style="display:none" data-id="791a90" aria-label="QUNDT1VOVA==" data-puzzle-id="34"></div>
+    <div style="display:none" data-id="278742" aria-label="QkFMQU5DRQ==" data-puzzle-id="35"></div>
+    <div style="display:none" data-id="d83f86" aria-label="U0lHTkFUVVJF" data-puzzle-id="36"></div>
+    <div style="display:none" data-id="32b1f7" aria-label="T1JBQ0xF" data-puzzle-id="37"></div>
+    <div style="display:none" data-id="d9f346" aria-label="Q09OU0VOU1VT" data-puzzle-id="38"></div>
+    <div style="display:none" data-id="c24957" aria-label="R09WRVJOQU5DRQ==" data-puzzle-id="39"></div>
+    <div style="display:none" data-id="6f2721" aria-label="REVMRUdBVEU=" data-puzzle-id="40"></div>
+    <div style="display:none" data-id="2849fa" aria-label="T1dORVJTSElQ" data-puzzle-id="41"></div>
+    <div style="display:none" data-id="5fb38d" aria-label="VFJBTlNGRVI=" data-puzzle-id="42"></div>
+    <div style="display:none" data-id="813539" aria-label="REVQTE9ZTUVOVA==" data-puzzle-id="43"></div>
+    <div style="display:none" data-id="eb4d8b" aria-label="RVhFQ1VUSU9O" data-puzzle-id="44"></div>
+    <div style="display:none" data-id="2fac34" aria-label="VkVSSUZJQ0FUSU9O" data-puzzle-id="45"></div>
+    <div style="display:none" data-id="21f78a" aria-label="QVRURVNUQVRJT04=" data-puzzle-id="46"></div>
+    <div style="display:none" data-id="56d461" aria-label="Q1JFREVOVElBTA==" data-puzzle-id="47"></div>
+    <div style="display:none" data-id="182881" aria-label="QlJPQURDQVNU" data-puzzle-id="48"></div>
+    <div style="display:none" data-id="0274d1" aria-label="U1lOQ0hST05JWkU=" data-puzzle-id="49"></div>
+    <div style="display:none" data-id="c9afec" aria-label="TEVER0VS" data-puzzle-id="50"></div>
+    <div style="display:none" data-id="4df937" aria-label="VkFMSURBVE9S" data-puzzle-id="51"></div>
+    <div style="display:none" data-id="3a5bad" aria-label="UFJPUE9TRVI=" data-puzzle-id="52"></div>
+    <div style="display:none" data-id="110c6c" aria-label="QVJCSVRSQVRJT04=" data-puzzle-id="53"></div>
+    <div style="display:none" data-id="46fcbb" aria-label="Q0hBTExFTkdF" data-puzzle-id="54"></div>
+    <div style="display:none" data-id="9315e7" aria-label="UkVXQVJE" data-puzzle-id="55"></div>
+    <div style="display:none" data-id="ecb37c" aria-label="UEVOQUxUWQ==" data-puzzle-id="56"></div>
+    <div style="display:none" data-id="adef7c" aria-label="U0xBU0hJTkc=" data-puzzle-id="57"></div>
+    <div style="display:none" data-id="102e44" aria-label="Qk9ORElORw==" data-puzzle-id="58"></div>
+    <div style="display:none" data-id="a4b93c" aria-label="VU5CT05ESU5H" data-puzzle-id="59"></div>
+    <div style="display:none" data-id="d03ac4" aria-label="Uk9VVElORw==" data-puzzle-id="60"></div>
+    <div style="display:none" data-id="939fd7" aria-label="RElTUEFUQ0g=" data-puzzle-id="61"></div>
+    <div style="display:none" data-id="b119b0" aria-label="TUFUQ0hJTkc=" data-puzzle-id="62"></div>
+    <div style="display:none" data-id="99f09c" aria-label="U0NPUklORw==" data-puzzle-id="63"></div>
+    <div style="display:none" data-id="5bf4b4" aria-label="UkFOS0lORw==" data-puzzle-id="64"></div>
+    <div style="display:none" data-id="d692ab" aria-label="VEVMRU9QRVJBVElPTg==" data-puzzle-id="65"></div>
+    <div style="display:none" data-id="1dd819" aria-label="REFUQVNFVA==" data-puzzle-id="66"></div>
+    <div style="display:none" data-id="899550" aria-label="Q09MTEVDVElPTg==" data-puzzle-id="67"></div>
+    <div style="display:none" data-id="50595f" aria-label="TEFCRUxJTkc=" data-puzzle-id="68"></div>
+    <div style="display:none" data-id="ba255a" aria-label="QU5OT1RBVElPTg==" data-puzzle-id="69"></div>
+    <div style="display:none" data-id="8ce1ac" aria-label="SFVNQU5PSUQ=" data-puzzle-id="70"></div>
+    <div style="display:none" data-id="7db605" aria-label="Uk9CT1RJQw==" data-puzzle-id="71"></div>
+    <div style="display:none" data-id="775315" aria-label="QVVUT05PTU9VUw==" data-puzzle-id="72"></div>
+    <div style="display:none" data-id="3b67f7" aria-label="VkVISUNMRQ==" data-puzzle-id="73"></div>
+    <div style="display:none" data-id="e8031e" aria-label="RFJPTkU=" data-puzzle-id="74"></div>
+    <div style="display:none" data-id="0688b5" aria-label="Q09NUFVURQ==" data-puzzle-id="75"></div>
+    <div style="display:none" data-id="59bbe4" aria-label="SU5GRVJFTkNF" data-puzzle-id="76"></div>
+    <div style="display:none" data-id="ca1aba" aria-label="VEhST1VHSFBVVA==" data-puzzle-id="77"></div>
+    <div style="display:none" data-id="c4fbe2" aria-label="TEFURU5DWQ==" data-puzzle-id="78"></div>
+    <div style="display:none" data-id="8cf48f" aria-label="QkFORFdJRFRI" data-puzzle-id="79"></div>
+    <div style="display:none" data-id="d1aeec" aria-label="VElNRVNIQVJJTkc=" data-puzzle-id="80"></div>
+    <div style="display:none" data-id="0a5a5b" aria-label="VVRJTElaQVRJT04=" data-puzzle-id="81"></div>
+    <div style="display:none" data-id="28df01" aria-label="Q0FQQUNJVFk=" data-puzzle-id="82"></div>
+    <div style="display:none" data-id="6d0327" aria-label="UFJPRFVDVElWSVRZ" data-puzzle-id="83"></div>
+    <div style="display:none" data-id="71f3ec" aria-label="UkVWRU5VRQ==" data-puzzle-id="84"></div>
+    <div style="display:none" data-id="3e387b" aria-label="U0VDT05EQVJZ" data-puzzle-id="85"></div>
+    <div style="display:none" data-id="fb2be4" aria-label="REVQUkVDSUFUSU9O" data-puzzle-id="86"></div>
+    <div style="display:none" data-id="718338" aria-label="UFJPVkVOQU5DRQ==" data-puzzle-id="87"></div>
+    <div style="display:none" data-id="4754c6" aria-label="SElTVE9SWQ==" data-puzzle-id="88"></div>
+    <div style="display:none" data-id="bdb711" aria-label="UFJPRklMRQ==" data-puzzle-id="89"></div>
+    <div style="display:none" data-id="807176" aria-label="SU1NVVRBQkxF" data-puzzle-id="90"></div>
+    <div style="display:none" data-id="64abb7" aria-label="VFJBTlNQQVJFTlQ=" data-puzzle-id="91"></div>
+    <div style="display:none" data-id="b90a6d" aria-label="UEVSTUlTU0lPTkxFU1M=" data-puzzle-id="92"></div>
+    <div style="display:none" data-id="73ba30" aria-label="VFJVU1RMRVNT" data-puzzle-id="93"></div>
+    <div style="display:none" data-id="f687c4" aria-label="Q09NUE9TQUJMRQ==" data-puzzle-id="94"></div>
+    <div style="display:none" data-id="3c84dc" aria-label="TElGRUNZQ0xF" data-puzzle-id="95"></div>
+    <div style="display:none" data-id="aa728d" aria-label="Q1JFQVRJT04=" data-puzzle-id="96"></div>
+    <div style="display:none" data-id="6a9f5a" aria-label="VEVSTUlOQVRJT04=" data-puzzle-id="97"></div>
+    <div style="display:none" data-id="db3b9e" aria-label="TUlHUkFUSU9O" data-puzzle-id="98"></div>
+    <div style="display:none" data-id="0c89c0" aria-label="QVJDSElWQUw=" data-puzzle-id="99"></div>
+    <div style="display:none" data-id="c8178f" aria-label="REVDT01QT1NJVElPTg==" data-puzzle-id="100"></div>
+    <div style="display:none" data-id="7adba9" aria-label="QUdHUkVHQVRJT04=" data-puzzle-id="101"></div>
+    <div style="display:none" data-id="848825" aria-label="TU9OSVRPUklORw==" data-puzzle-id="102"></div>
+    <div style="display:none" data-id="452ac2" aria-label="UkVBTExPQ0FUSU9O" data-puzzle-id="103"></div>
+    <div style="display:none" data-id="a946e5" aria-label="RkFMTEJBQ0s=" data-puzzle-id="104"></div>
+    <div style="display:none" data-id="48daad" aria-label="Q09PUkRJTkFUSU9O" data-puzzle-id="105"></div>
+    <div style="display:none" data-id="ebf072" aria-label="SU5URUdSQVRJT04=" data-puzzle-id="106"></div>
+    <div style="display:none" data-id="9972c8" aria-label="QUJTVFJBQ1RJT04=" data-puzzle-id="107"></div>
+    <div style="display:none" data-id="0884c5" aria-label="SU5URVJPUEVSQUJJTElUWQ==" data-puzzle-id="108"></div>
+    <div style="display:none" data-id="d38a47" aria-label="U09WRVJFSUdOVFk=" data-puzzle-id="109"></div>
+    <div style="display:none" data-id="803a28" aria-label="U0lHTkFM" data-puzzle-id="110"></div>
+    <div style="display:none" data-id="a11834" aria-label="R0VORVNJUw==" data-puzzle-id="111"></div>
+    <div style="display:none" data-id="d4823a" aria-label="QVdBS0VO" data-puzzle-id="112"></div>
+    <div style="display:none" data-id="236caa" aria-label="T1JJR0lO" data-puzzle-id="113"></div>
+    <div style="display:none" data-id="1a69d6" aria-label="VkVSSUZZ" data-puzzle-id="114"></div>
+    <div style="display:none" data-id="d416a7" aria-label="Tk9ERQ==" data-puzzle-id="115"></div>
+    <div style="display:none" data-id="cc20a6" aria-label="Q0hBSU4=" data-puzzle-id="116"></div>
+    <div style="display:none" data-id="b9c864" aria-label="UkVMQVk=" data-puzzle-id="117"></div>
+    <div style="display:none" data-id="0c3fc9" aria-label="QlJJREdF" data-puzzle-id="118"></div>
+    <div style="display:none" data-id="1a0252" aria-label="QU5DSE9S" data-puzzle-id="119"></div>
+    <div style="display:none" data-id="a1f474" aria-label="TEFZRVI=" data-puzzle-id="120"></div>
+    <div style="display:none" data-id="563e0c" aria-label="Rk9VTkRBVElPTg==" data-puzzle-id="121"></div>
+    <div style="display:none" data-id="551705" aria-label="U1RPUkFHRQ==" data-puzzle-id="122"></div>
+    <div style="display:none" data-id="1aba69" aria-label="QVBQTElDQVRJT04=" data-puzzle-id="123"></div>
+    <div style="display:none" data-id="67e0ed" aria-label="VEVTVE5FVA==" data-puzzle-id="124"></div>
+    <div style="display:none" data-id="60fc49" aria-label="TUFJTk5FVA==" data-puzzle-id="125"></div>
+    <div style="display:none" data-id="7c7cbd" aria-label="VVBHUkFERQ==" data-puzzle-id="126"></div>
+    <div style="display:none" data-id="e94133" aria-label="VFJFQVNVUlk=" data-puzzle-id="127"></div>
+    <div style="display:none" data-id="593f17" aria-label="TEFVTkNIUEFE" data-puzzle-id="128"></div>
+    <div style="display:none" data-id="7e191a" aria-label="TElRVUlESVRZ" data-puzzle-id="129"></div>
+    <div style="display:none" data-id="4ba72c" aria-label="Q09MTEFURVJBTA==" data-puzzle-id="130"></div>
+    <div style="display:none" data-id="eda45f" aria-label="Qk9SUk9XSU5H" data-puzzle-id="131"></div>
+    <div style="display:none" data-id="f3b7eb" aria-label="VE9LRU5JWkU=" data-puzzle-id="132"></div>
+    <div style="display:none" data-id="3859a9" aria-label="RlJBQ1RJT05BTElaRQ==" data-puzzle-id="133"></div>
+    <div style="display:none" data-id="f647e8" aria-label="Q1VTVE9ESUFO" data-puzzle-id="134"></div>
+    <div style="display:none" data-id="a60521" aria-label="RVNDUk9X" data-puzzle-id="135"></div>
+    <div style="display:none" data-id="a42aef" aria-label="R0VPU1BBVElBTA==" data-puzzle-id="136"></div>
+    <div style="display:none" data-id="8c9f37" aria-label="U0VNQU5USUM=" data-puzzle-id="137"></div>
+    <div style="display:none" data-id="d2e286" aria-label="TVVMVElNT0RBTA==" data-puzzle-id="138"></div>
+    <div style="display:none" data-id="bd7939" aria-label="UkVBTFRJTUU=" data-puzzle-id="139"></div>
+    <div style="display:none" data-id="e5dbf1" aria-label="U1RSRUFNSU5H" data-puzzle-id="140"></div>
+    <div style="display:none" data-id="5a84b2" aria-label="QklGVVJDQVRJT04=" data-puzzle-id="141"></div>
+    <div style="display:none" data-id="65575b" aria-label="U1VCU1RSQVRF" data-puzzle-id="142"></div>
+    <div style="display:none" data-id="f80ca0" aria-label="UFJJTUlUSVZF" data-puzzle-id="143"></div>
+    <div style="display:none" data-id="9b6acc" aria-label="TkFUSVZJVFk=" data-puzzle-id="144"></div>
+    <div style="display:none" data-id="7f6dd0" aria-label="RU1CT0RJRUQ=" data-puzzle-id="145"></div>
+    <div style="display:none" data-id="c55ab9" aria-label="Q09HTklUSVZF" data-puzzle-id="146"></div>
+    <div style="display:none" data-id="b9c721" aria-label="R1JPVU5ERUQ=" data-puzzle-id="147"></div>
+    <div style="display:none" data-id="88b72b" aria-label="QURBUFRJVkU=" data-puzzle-id="148"></div>
+    <div style="display:none" data-id="792a0c" aria-label="UFJFRElDVElWRQ==" data-puzzle-id="149"></div>
+    <div style="display:none" data-id="49860c" aria-label="Q1JZUFRPR1JBUEhJQw==" data-puzzle-id="150"></div>
+    <div style="display:none" data-id="db8031" aria-label="UFJJTkNJUEFM" data-puzzle-id="151"></div>
+    <div style="display:none" data-id="302ca0" aria-label="RklEVUNJQVJZ" data-puzzle-id="152"></div>
+    <div style="display:none" data-id="e6e352" aria-label="SU5DRVBUSU9O" data-puzzle-id="153"></div>
+    <div style="display:none" data-id="af7530" aria-label="RlVMRklMTE1FTlQ=" data-puzzle-id="154"></div>
+    <div style="display:none" data-id="51c4b6" aria-label="UkVTT0xVVElPTg==" data-puzzle-id="155"></div>
+    <div style="display:none" data-id="63b40e" aria-label="SEFSRFdBUkU=" data-puzzle-id="156"></div>
+    <div style="display:none" data-id="4aeb10" aria-label="RklSTVdBUkU=" data-puzzle-id="157"></div>
+    <div style="display:none" data-id="137a6b" aria-label="TUlERExFV0FSRQ==" data-puzzle-id="158"></div>
+    <div style="display:none" data-id="de2e23" aria-label="U0VOU09S" data-puzzle-id="159"></div>
+    <div style="display:none" data-id="89dae6" aria-label="QUNUVUFUT1I=" data-puzzle-id="160"></div>
+    <div style="display:none" data-id="594fbf" aria-label="TUFOSVBVTEFUT1I=" data-puzzle-id="161"></div>
+    <div style="display:none" data-id="056e13" aria-label="TE9DT01PVElPTg==" data-puzzle-id="162"></div>
+    <div style="display:none" data-id="16515c" aria-label="UEVSQ0VQVElPTg==" data-puzzle-id="163"></div>
+    <div style="display:none" data-id="80a902" aria-label="VFJBSU5JTkc=" data-puzzle-id="164"></div>
+    <div style="display:none" data-id="406ae3" aria-label="RklORVRVTklORw==" data-puzzle-id="165"></div>
+    <div style="display:none" data-id="e010bc" aria-label="RElTVElMTEFUSU9O" data-puzzle-id="166"></div>
+    <div style="display:none" data-id="5fdd9b" aria-label="QUxJR05NRU5U" data-puzzle-id="167"></div>
+    <div style="display:none" data-id="4f5547" aria-label="SU5DRU5USVZF" data-puzzle-id="168"></div>
+    <div style="display:none" data-id="9ddca5" aria-label="TUVDSEFOSVNN" data-puzzle-id="169"></div>
+    <div style="display:none" data-id="ee82d4" aria-label="RVFVSUxJQlJJVU0=" data-puzzle-id="170"></div>
+    <div style="display:none" data-id="68ee79" aria-label="Q09PUEVSQVRJT04=" data-puzzle-id="171"></div>
+    <div style="display:none" data-id="d481dd" aria-label="U1RPQ0hBU1RJQw==" data-puzzle-id="172"></div>
+    <div style="display:none" data-id="e43120" aria-label="V0VJR0hURUQ=" data-puzzle-id="173"></div>
+    <div style="display:none" data-id="c76d95" aria-label="UkVCQUxBTkNF" data-puzzle-id="174"></div>
+    <div style="display:none" data-id="ec6f20" aria-label="RklOQUxJVFk=" data-puzzle-id="175"></div>
+    <div style="display:none" data-id="1f4f3d" aria-label="VEhSRVNIT0xE" data-puzzle-id="176"></div>
+    <div style="display:none" data-id="2904f1" aria-label="UEFSQU1FVEVS" data-puzzle-id="177"></div>
+    <div style="display:none" data-id="ac9ad8" aria-label="SU5JVElBTElaRQ==" data-puzzle-id="178"></div>
+    <div style="display:none" data-id="df328d" aria-label="UFJPUEFHQVRF" data-puzzle-id="179"></div>
+    <div style="display:none" data-id="3e487c" aria-label="Q0hFQ0tQT0lOVA==" data-puzzle-id="180"></div>
+    <div style="display:none" data-id="7280f9" aria-label="U05BUFNIT1Q=" data-puzzle-id="181"></div>
+    <div style="display:none" data-id="741e60" aria-label="Uk9MTEJBQ0s=" data-puzzle-id="182"></div>
+    <div style="display:none" data-id="c777fc" aria-label="UkVQTElDQVRJT04=" data-puzzle-id="183"></div>
+    <div style="display:none" data-id="44bf02" aria-label="U0hBUkRJTkc=" data-puzzle-id="184"></div>
+    <div style="display:none" data-id="4f4a21" aria-label="UEFSVElUSU9O" data-puzzle-id="185"></div>
+    <div style="display:none" data-id="bca669" aria-label="UVVPUlVN" data-puzzle-id="186"></div>
+    <div style="display:none" data-id="0fd268" aria-label="QllaQU5USU5F" data-puzzle-id="187"></div>
+    <div style="display:none" data-id="0ada6f" aria-label="TElWRU5FU1M=" data-puzzle-id="188"></div>
+    <div style="display:none" data-id="1b6e7d" aria-label="U0FGRVRZ" data-puzzle-id="189"></div>
+    <div style="display:none" data-id="e9a474" aria-label="VkFMSURJVFk=" data-puzzle-id="190"></div>
+    <div style="display:none" data-id="ba91ec" aria-label="SU5URUdSSVRZ" data-puzzle-id="191"></div>
+    <div style="display:none" data-id="901a08" aria-label="QVZBSUxBQklMSVRZ" data-puzzle-id="192"></div>
+    <div style="display:none" data-id="daa0cb" aria-label="Q09ORklERU5USUFMSVRZ" data-puzzle-id="193"></div>
+    <div style="display:none" data-id="8ac88b" aria-label="QUNDT1VOVEFCSUxJVFk=" data-puzzle-id="194"></div>
+    <div style="display:none" data-id="70ba7e" aria-label="Q09NUE9TQUJJTElUWQ==" data-puzzle-id="195"></div>
+    <div style="display:none" data-id="f35f0b" aria-label="RVhURU5TSUJJTElUWQ==" data-puzzle-id="196"></div>
+    <div style="display:none" data-id="e5fa0f" aria-label="TU9EVUxBUklUWQ==" data-puzzle-id="197"></div>
+    <div style="display:none" data-id="92434c" aria-label="U0NBTEFCSUxJVFk=" data-puzzle-id="198"></div>
+    <div style="display:none" data-id="88eea1" aria-label="UkVTSUxJRU5DRQ==" data-puzzle-id="199"></div>
+    <div style="display:none" data-id="9f26c2" aria-label="REVDRU5UUkFMSVpBVElPTg==" data-puzzle-id="200"></div>
+</div>
+
+
+<!-- LANDING -->
+<div id="landing">
+  <div class="landing-grid"></div>
+  <div class="landing-glow"></div>
+  <div class="landing-content">
+    <div class="landing-badge">AIXC Foundation · February 2026</div>
+    <div class="landing-title">Technical<br><span>White Paper</span></div>
+    <div class="landing-sub">v5.0 &nbsp;·&nbsp; Decentralized Coordination Network for AI Agents &amp; EAI</div>
+    <button class="open-btn" onclick="openWhitepaper()">Open White Paper</button>
+  </div>
+</div>
+
+<!-- VIEWER -->
+<div id="viewer">
+  <div class="nav-bar">
+    <div class="nav-logo">AIXC</div>
+    <div class="nav-meta">Technical White Paper v5.0 &nbsp;·&nbsp; February 2026/200</span>
+    </div>
+    <button class="signal-btn" onclick="openTreasureMap()">⬡ Signal</button>
+  </div>
+
+  <div class="wp-container">
+    <div class="wp-header">
+      <div class="wp-institution">AIXC Foundation</div>
+      <div class="wp-title">A Decentralized Coordination Network for AI Agents and Embodied AI Systems</div>
+      <div class="wp-authors">AIXC Foundation Research Group &nbsp;·&nbsp; contact@aixc.foundation</div>
+      <div class="wp-version">Technical White Paper v5.0 &nbsp;·&nbsp; February 2026</div>
+    </div>
+
+    <div class="wp-abstract" id="section-abstract">
+      <span style="display:none" class="node-ref" data-puzzle="1">100</span>
+        <span style="display:none" class="node-ref" data-puzzle="2">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="3">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="4">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="5">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="6">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="7">100</span>
+        <span style="display:none" class="node-ref" data-puzzle="8">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="9">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="10">000</span>
+      <div class="wp-abstract-title">Abstract</div>
+      <div class="wp-p">This paper introduces AIXC, a Layer-1 blockchain protocol designed as the coordination substrate for Embodied Artificial Intelligence (EAI) systems and software AI Agent ecosystems. The protocol addresses two fundamental deficiencies in existing blockchain infrastructure: (1) the absence of a permissionless, trust-minimized coordination mechanism between AI Agents and physical EAI devices, and (2) the static limitations of conventional Real World Asset (RWA) frameworks, which cannot capture the dynamic productive value generated by intelligent physical devices in operation.</div>
+      <div class="wp-p">AIXC introduces a dual-account model distinguishing Human principals from Agent entities, and a novel trust layer standard — ERC-8004 — comprising three interdependent registries: Identity, Reputation, and Validation. Physical EAI devices participate in the economic network via on-chain Agent proxies. Four foundational application domains form a self-reinforcing economic flywheel.</div>
+      <div class="wp-p"><em>Keywords: Embodied AI, AI Agent, Layer-1 Blockchain, Real World Assets, Decentralized Coordination, Reputation Systems, ERC-8004, REE Protocol</em></div>
+    </div>
+
+    <div class="wp-section" id="section-1">
+      <span style="display:none" class="node-ref" data-puzzle="11">100</span>
+        <span style="display:none" class="node-ref" data-puzzle="12">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="13">015</span>
+        <span style="display:none" class="node-ref" data-puzzle="14">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="15">090</span>
+        <span style="display:none" class="node-ref" data-puzzle="16">100</span>
+        <span style="display:none" class="node-ref" data-puzzle="17">010</span>
+        <span style="display:none" class="node-ref" data-puzzle="18">020</span>
+        <span style="display:none" class="node-ref" data-puzzle="19">030</span>
+        <span style="display:none" class="node-ref" data-puzzle="20">100</span>
+        <span style="display:none" class="node-ref" data-puzzle="21">006</span>
+        <span style="display:none" class="node-ref" data-puzzle="22">010</span>
+        <span style="display:none" class="node-ref" data-puzzle="23">050</span>
+        <span style="display:none" class="node-ref" data-puzzle="24">020</span>
+        <span style="display:none" class="node-ref" data-puzzle="25">100</span>
+      <div class="wp-h1"><span class="sec-num">1</span> Introduction</div>
+      <div class="wp-p">Blockchain is increasingly proposed as infrastructure for autonomous economic coordination. Yet current publicly available blockchains were not designed to accommodate non-human economic actors. Each node in the network operates under account models presupposing human-controlled key management, and no existing protocol natively distinguishes between human principals and AI agents.<span class="wp-ref" title="Wood, Ethereum Yellow Paper, 2014">[3]</span></div>
+      <div class="wp-p">The lack of protocol-level reputation mechanisms, capability attestation, or work validation primitives means that when AI Agents attempt to coordinate autonomous physical execution, there is no guarantee that every participant will make consistent decisions about service quality, identity, or settlement.</div>
+      <div class="wp-p">Simultaneously, physical robotics — humanoid robots, autonomous vehicles, unmanned aerial vehicles, and industrial manipulators — are entering large-scale commercial deployment, yet remain epistemologically isolated from the broader AI ecosystem.<span class="wp-ref" title="Boston Dynamics, Tesla AI, Unitree, 2025">[2]</span> Software intelligence possesses cognitive capability without physical grounding; embodied systems possess physical execution capacity without adaptive intelligence.</div>
+      <div class="wp-p">This paper proposes AIXC based on three coordinated innovations: a native dual-account protocol model; the ERC-8004 trust layer standard; and a proxy-mediated EAI participation model enabling physical devices to enter the network economy without direct chain interaction.</div>
+    </div>
+
+    <div class="wp-section" id="section-3">
+      <span style="display:none" class="node-ref" data-puzzle="26">100</span>
+        <span style="display:none" class="node-ref" data-puzzle="27">100</span>
+        <span style="display:none" class="node-ref" data-puzzle="28">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="29">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="30">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="31">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="32">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="33">010</span>
+        <span style="display:none" class="node-ref" data-puzzle="34">010</span>
+        <span style="display:none" class="node-ref" data-puzzle="35">180</span>
+        <span style="display:none" class="node-ref" data-puzzle="36">040</span>
+        <span style="display:none" class="node-ref" data-puzzle="37">080</span>
+        <span style="display:none" class="node-ref" data-puzzle="38">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="39">045</span>
+        <span style="display:none" class="node-ref" data-puzzle="40">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="41">100</span>
+        <span style="display:none" class="node-ref" data-puzzle="42">030</span>
+        <span style="display:none" class="node-ref" data-puzzle="43">005</span>
+        <span style="display:none" class="node-ref" data-puzzle="44">100</span>
+        <span style="display:none" class="node-ref" data-puzzle="45">006</span>
+      <div class="wp-h1"><span class="sec-num">3</span> Design Motivation</div>
+      <div class="wp-h2">3.1 The Bifurcation of Digital and Physical Intelligence</div>
+      <div class="wp-p">Since 2023, AI Agents have evolved into digital entities capable of intent parsing, task decomposition, and autonomous decision-making.<span class="wp-ref" title="Yao et al., ReAct, ICLR 2023">[5]</span> Bridging the digital-physical divide requires a trusted coordination layer capable of resolving four interdependent problems: (1) permissionless service discovery, (2) cryptographic identity verification, (3) tamper-resistant proof of task completion, and (4) multi-principal settlement across heterogeneous actors.</div>
+      <div class="wp-h2">3.2 Limitations of Existing Infrastructure</div>
+      <div class="wp-p">Contemporary Layer-1 protocols impose three structural constraints on AI-native applications:</div>
+      <ul class="wp-ul">
+        <li><strong>Account model incompatibility.</strong> Ethereum, Solana, and Cosmos were architected for human-controlled accounts.<span class="wp-ref" title="Wood, 2014">[3]</span> The absence of a native Human/Agent distinction necessitates smart contract abstraction workarounds, introducing performance overhead and ecosystem fragmentation.<span class="wp-ref" title="Buterin, ERC-4337, 2023">[6]</span></li>
+        <li><strong>Static RWA paradigm.</strong> Existing tokenization frameworks map physical assets to on-chain representations supporting passive holding and transfer. They capture market valuation but cannot represent productive capacity.<span class="wp-ref" title="Centrifuge, MakerDAO, 2023">[4]</span></li>
+        <li><strong>Absence of native reputation primitives.</strong> Trust and reputation are typically managed through external oracle mechanisms, without the protocol-level guarantees required for autonomous inter-Agent coordination.</li>
+      </ul>
+      <div class="wp-h2">3.3 AIXC's Approach: Productive RWA</div>
+      <div class="wp-p">AIXC reconceptualizes the RWA paradigm by treating intelligent physical devices as productive economic agents rather than static assets.</div>
+      <table class="wp-table">
+        <caption>Table 1: Comparison of conventional RWA and AIXC productive RWA paradigms.</caption>
+        <tr><th>Dimension</th><th>Conventional RWA</th><th>AIXC Productive RWA</th></tr>
+        <tr><td>Asset type</td><td>Real estate, bonds, artwork</td><td>Robots, UAVs, autonomous vehicles</td></tr>
+        <tr><td>Asset state</td><td>Static: hold, transfer</td><td>Dynamic: work, generate revenue</td></tr>
+        <tr><td>Value source</td><td>Market price</td><td>Economic output and productivity</td></tr>
+        <tr><td>On-chain capability</td><td>Ownership record</td><td>Identity + Reputation + Validation</td></tr>
+        <tr><td>Participation method</td><td>Direct asset mapping</td><td>Proxy via Agent account</td></tr>
+      </table>
+      <div class="wp-h2">3.4 Design Principles</div>
+      <table class="wp-table">
+        <caption>Table 2: AIXC core design principles.</caption>
+        <tr><th>Principle</th><th>Description</th></tr>
+        <tr><td>Account nativity</td><td>Human and Agent accounts are protocol-layer primitives, not contract abstractions</td></tr>
+        <tr><td>Identity sovereignty</td><td>Agent accounts possess independent addresses; transact without Human co-signature</td></tr>
+        <tr><td>Embedded reputation</td><td>Reputation is a native account attribute, independent of external oracles</td></tr>
+        <tr><td>Composable validation</td><td>Work verification results are readable by all downstream contracts</td></tr>
+        <tr><td>Human sovereignty</td><td>Human principals retain ultimate ownership and override authority over Agents</td></tr>
+        <tr><td>EAI off-chain execution</td><td>Physical devices participate via Agent proxy; no independent on-chain registration required</td></tr>
+      </table>
+    </div>
+
+    <div class="wp-section" id="section-4">
+      <span style="display:none" class="node-ref" data-puzzle="46">006</span>
+        <span style="display:none" class="node-ref" data-puzzle="47">006</span>
+        <span style="display:none" class="node-ref" data-puzzle="48">006</span>
+        <span style="display:none" class="node-ref" data-puzzle="49">012</span>
+        <span style="display:none" class="node-ref" data-puzzle="50">018</span>
+        <span style="display:none" class="node-ref" data-puzzle="51">019</span>
+        <span style="display:none" class="node-ref" data-puzzle="52">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="53">005</span>
+        <span style="display:none" class="node-ref" data-puzzle="54">002</span>
+        <span style="display:none" class="node-ref" data-puzzle="55">026</span>
+        <span style="display:none" class="node-ref" data-puzzle="56">017</span>
+        <span style="display:none" class="node-ref" data-puzzle="57">009</span>
+        <span style="display:none" class="node-ref" data-puzzle="58">010</span>
+        <span style="display:none" class="node-ref" data-puzzle="59">006</span>
+        <span style="display:none" class="node-ref" data-puzzle="60">012</span>
+        <span style="display:none" class="node-ref" data-puzzle="61">006</span>
+        <span style="display:none" class="node-ref" data-puzzle="62">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="63">045</span>
+        <span style="display:none" class="node-ref" data-puzzle="64">030</span>
+        <span style="display:none" class="node-ref" data-puzzle="65">005</span>
+        <span style="display:none" class="node-ref" data-puzzle="66">100</span>
+        <span style="display:none" class="node-ref" data-puzzle="67">010</span>
+        <span style="display:none" class="node-ref" data-puzzle="68">000</span>
+        <span style="display:none" class="node-ref" data-puzzle="69">003</span>
+        <span style="display:none" class="node-ref" data-puzzle="70">015</span>
+      <div class="wp-h1"><span class="sec-num">4</span> Dual-Account Protocol Model</div>
+      <div class="wp-h2">4.1 Description</div>
+      <div class="wp-p">AIXC natively supports two distinct account types at the protocol layer. Human accounts are fully autonomous Externally Owned Accounts (EOAs) compatible with existing wallet infrastructure. Agent accounts are constrained-autonomy on-chain identities representing AI programs and associated physical device capabilities.</div>
+      <div class="wp-h2">4.2 Human Accounts</div>
+      <table class="wp-table">
+        <caption>Table 3: Human account permission model.</caption>
+        <tr><th>Permission</th><th>Description</th></tr>
+        <tr><td>Agent account creation</td><td>Deploy Agent instances; declare capability source and operational scope</td></tr>
+        <tr><td>Behavioral boundary configuration</td><td>Set spending limits, scheduling constraints, and operational parameters</td></tr>
+        <tr><td>Revenue extraction</td><td>Withdraw accumulated balances from subordinate Agent accounts</td></tr>
+        <tr><td>Ownership transfer</td><td>Transfer Agent account ownership to other Human principals</td></tr>
+        <tr><td>Governance participation</td><td>Vote on protocol upgrades, parameter adjustments, and standard modifications</td></tr>
+      </table>
+      <div class="wp-h2">4.3 Agent Accounts</div>
+      <div class="wp-p">Agent accounts are not on-chain smart contracts; they are off-chain service entities with on-chain identities. Agent execution logic runs off-chain, while identity, reputation, and economic state are anchored on-chain. Agents are perpetually bound to a Human account principal but can transact, schedule, and settle payments autonomously.</div>
+      <table class="wp-table">
+        <caption>Table 4: Agent account state schema.</caption>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>address</code></td><td><code>bytes20</code></td><td>Unique on-chain account address</td></tr>
+        <tr><td><code>capabilitySource</code></td><td><code>enum</code></td><td>SOFTWARE | PHYSICAL | HYBRID</td></tr>
+        <tr><td><code>owner</code></td><td><code>address</code></td><td>Controlling Human account address</td></tr>
+        <tr><td><code>balance</code></td><td><code>uint256</code></td><td>$AIXC token balance</td></tr>
+        <tr><td><code>status</code></td><td><code>enum</code></td><td>ACTIVE | PAUSED | TERMINATED</td></tr>
+      </table>
+      <div class="wp-h2">4.4 EAI Participation via Agent Proxy</div>
+      <div class="wp-p">Embodied AI (EAI) systems participate via Agent proxies rather than direct chain interaction. This design is grounded in four considerations: (1) management software is a necessary intermediary; (2) on-chain cost efficiency — a manufacturing facility operating 10,000 robotic units requires registration of a small number of Agents rather than individual device registration;<span class="wp-ref" title="Peng et al., IEEE IoT 2024">[8]</span> (3) Agent proxies provide task planning, resource optimization, and state management; (4) service granularity is operator-configurable — 100 delivery vehicles can be registered as a single Agent or segmented into multiple service-specific Agents.</div>
+      <div class="wp-h2">4.5 Scheduling and Lifecycle</div>
+      <div class="wp-p">The scheduling hierarchy follows a strict Human → Agent → Agent chain. Agent lifecycle proceeds through five states: creation, active operation, pause/resume, and termination. Upon termination, balances are returned to the owner; historical reputation records are permanently preserved to prevent reputation laundering via account cycling.</div>
+    </div>
+
+    <div class="wp-section" id="section-5">
+      <span style="display:none" class="node-ref" data-puzzle="71">010</span>
+        <span style="display:none" class="node-ref" data-puzzle="72">011</span>
+        <span style="display:none" class="node-ref" data-puzzle="73">012</span>
+        <span style="display:none" class="node-ref" data-puzzle="74">019</span>
+        <span style="display:none" class="node-ref" data-puzzle="75">020</span>
+        <span style="display:none" class="node-ref" data-puzzle="76">016</span>
+        <span style="display:none" class="node-ref" data-puzzle="77">020</span>
+        <span style="display:none" class="node-ref" data-puzzle="78">019</span>
+        <span style="display:none" class="node-ref" data-puzzle="79">021</span>
+        <span style="display:none" class="node-ref" data-puzzle="80">017</span>
+        <span style="display:none" class="node-ref" data-puzzle="81">023</span>
+        <span style="display:none" class="node-ref" data-puzzle="82">022</span>
+        <span style="display:none" class="node-ref" data-puzzle="83">033</span>
+        <span style="display:none" class="node-ref" data-puzzle="84">018</span>
+        <span style="display:none" class="node-ref" data-puzzle="85">018</span>
+        <span style="display:none" class="node-ref" data-puzzle="86">024</span>
+        <span style="display:none" class="node-ref" data-puzzle="87">007</span>
+        <span style="display:none" class="node-ref" data-puzzle="88">016</span>
+        <span style="display:none" class="node-ref" data-puzzle="89">005</span>
+        <span style="display:none" class="node-ref" data-puzzle="90">007</span>
+        <span style="display:none" class="node-ref" data-puzzle="91">006</span>
+        <span style="display:none" class="node-ref" data-puzzle="92">002</span>
+        <span style="display:none" class="node-ref" data-puzzle="93">009</span>
+        <span style="display:none" class="node-ref" data-puzzle="94">012</span>
+        <span style="display:none" class="node-ref" data-puzzle="95">016</span>
+        <span style="display:none" class="node-ref" data-puzzle="96">008</span>
+        <span style="display:none" class="node-ref" data-puzzle="97">011</span>
+        <span style="display:none" class="node-ref" data-puzzle="98">008</span>
+        <span style="display:none" class="node-ref" data-puzzle="99">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="100">010</span>
+      <div class="wp-h1"><span class="sec-num">5</span> ERC-8004: The Trust Layer</div>
+      <div class="wp-h2">5.1 Identity Registry</div>
+      <table class="wp-table">
+        <caption>Table 5: Identity Registry base schema.</caption>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>id</code></td><td><code>bytes32</code></td><td>Globally unique identifier</td></tr>
+        <tr><td><code>createdAt</code></td><td><code>uint64</code></td><td>Unix timestamp of registration</td></tr>
+        <tr><td><code>capabilities</code></td><td><code>string[]</code></td><td>Capability tags (e.g., visual_inspection)</td></tr>
+        <tr><td><code>capabilitySource</code></td><td><code>enum</code></td><td>SOFTWARE | PHYSICAL | HYBRID</td></tr>
+        <tr><td><code>metadata</code></td><td><code>string</code></td><td>Extensible JSON metadata</td></tr>
+      </table>
+      <div class="wp-h2">5.2 Reputation Registry</div>
+      <div class="wp-p">Newly registered accounts are initialized at a reputation score of 500 on a scale of 10,000. Score modifications are event-driven:</div>
+      <table class="wp-table">
+        <caption>Table 6: Reputation score modification events.</caption>
+        <tr><th>Event</th><th>Score delta</th></tr>
+        <tr><td>Task successful completion</td><td>+10 to +50 (proportional to task complexity)</td></tr>
+        <tr><td>Task failure (non-adversarial)</td><td>−20 to −100</td></tr>
+        <tr><td>Adversarial behavior (verified)</td><td>−100 to −500</td></tr>
+        <tr><td>Prolonged inactivity</td><td>Slow decay (configurable by governance)</td></tr>
+      </table>
+      <div class="wp-p">Reputation scores are bounded by stake-weighted ceilings — a mechanism consistent with the economic theory of costly signaling:<span class="wp-ref" title="Spence, QJE 1973">[9]</span> no staking → ceiling 3,000; 100 $AIXC → 5,000; 1,000 $AIXC → 7,000; 10,000 $AIXC → 10,000. Scores serve three economic functions: service discovery ranking, pricing premium entitlement, and high-value task access gating.</div>
+      <div class="wp-h2">5.3 Validation Registry</div>
+      <div class="wp-p">Three modalities are supported:</div>
+      <ul class="wp-ul">
+        <li><strong>DETERMINISTIC.</strong> On-chain direct verification with objective, computable acceptance criteria.</li>
+        <li><strong>OPTIMISTIC.</strong> Default-accept with a challenge window; disputes trigger an arbitration sub-protocol.<span class="wp-ref" title="Kalodner, Arbitrum, 2018">[10]</span></li>
+        <li><strong>REPUTATION_WEIGHTED.</strong> Multi-validator weighted voting, vote weights proportional to validator reputation scores.</li>
+      </ul>
+      <div class="wp-h2">5.4 Registry Coordination</div>
+      <div class="wp-p">Pre-execution: query Identity → query Reputation → select optimal Agent. Post-execution: submit evidence → Validation verifies → on success, Reputation incremented and payment released; on failure, Reputation decremented and refund or penalty disbursed per SLA terms.</div>
+    </div>
+
+    <div class="wp-section" id="section-6">
+      <span style="display:none" class="node-ref" data-puzzle="101">007</span>
+        <span style="display:none" class="node-ref" data-puzzle="102">005</span>
+        <span style="display:none" class="node-ref" data-puzzle="103">007</span>
+        <span style="display:none" class="node-ref" data-puzzle="104">009</span>
+        <span style="display:none" class="node-ref" data-puzzle="105">006</span>
+        <span style="display:none" class="node-ref" data-puzzle="106">009</span>
+        <span style="display:none" class="node-ref" data-puzzle="107">007</span>
+        <span style="display:none" class="node-ref" data-puzzle="108">007</span>
+        <span style="display:none" class="node-ref" data-puzzle="109">027</span>
+        <span style="display:none" class="node-ref" data-puzzle="110">022</span>
+        <span style="display:none" class="node-ref" data-puzzle="111">012</span>
+        <span style="display:none" class="node-ref" data-puzzle="112">016</span>
+        <span style="display:none" class="node-ref" data-puzzle="113">020</span>
+        <span style="display:none" class="node-ref" data-puzzle="114">033</span>
+        <span style="display:none" class="node-ref" data-puzzle="115">031</span>
+        <span style="display:none" class="node-ref" data-puzzle="116">032</span>
+        <span style="display:none" class="node-ref" data-puzzle="117">007</span>
+        <span style="display:none" class="node-ref" data-puzzle="118">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="119">007</span>
+        <span style="display:none" class="node-ref" data-puzzle="120">007</span>
+        <span style="display:none" class="node-ref" data-puzzle="121">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="122">007</span>
+        <span style="display:none" class="node-ref" data-puzzle="123">006</span>
+        <span style="display:none" class="node-ref" data-puzzle="124">008</span>
+        <span style="display:none" class="node-ref" data-puzzle="125">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="126">006</span>
+        <span style="display:none" class="node-ref" data-puzzle="127">020</span>
+        <span style="display:none" class="node-ref" data-puzzle="128">017</span>
+        <span style="display:none" class="node-ref" data-puzzle="129">025</span>
+        <span style="display:none" class="node-ref" data-puzzle="130">036</span>
+      <div class="wp-h1"><span class="sec-num">6</span> Protocol Architecture</div>
+      <div class="wp-h2">6.1 Layered Architecture</div>
+      <table class="wp-table">
+        <caption>Table 7: AIXC layered architecture.</caption>
+        <tr><th>Layer</th><th>Components</th></tr>
+        <tr><td>Application</td><td>DApps, Agent SDK, REE SuperApp, third-party integrations</td></tr>
+        <tr><td>Protocol</td><td>Discovery Protocol, Schedule Protocol, Payment Protocol (RCP, ROP)</td></tr>
+        <tr><td>Core</td><td>ERC-8004 (Identity Registry / Reputation Registry / Validation Registry)</td></tr>
+        <tr><td>Foundation</td><td>Dual-account model, PoS+BFT consensus, Merkle Trie state storage</td></tr>
+        <tr><td>Storage</td><td>KV database (chain state) + Search Index (Agent attribute retrieval)</td></tr>
+      </table>
+      <div class="wp-h2">6.2 REE Commerce Protocol (RCP)</div>
+      <div class="wp-p">RCP defines a five-stage transaction flow for inter-Agent commerce: Discovery → Negotiation → Execution → Settlement → Post-Settlement. Settlement is progressive — partial completion yields proportional payment; over-delivery triggers bonus; SLA breach triggers contractual deductions. No human intervention required.</div>
+      <div class="wp-h2">6.3 REE Orchestration Protocol (ROP)</div>
+      <div class="wp-p">ROP handles the coordination requirements of complex multi-Agent tasks through four modules: (1) Task Decomposition — sub-task identification, dependency planning, fallback path generation; (2) Agent Matching — multi-criteria optimization across capability, availability, reputation, price, and geolocation; (3) Execution Monitoring — real-time progress tracking with automated re-assignment on failure; (4) Result Aggregation — composite task completion proof for Validation Registry submission.</div>
+    </div>
+
+    <div class="wp-section" id="section-7">
+      <span style="display:none" class="node-ref" data-puzzle="131">025</span>
+        <span style="display:none" class="node-ref" data-puzzle="132">024</span>
+        <span style="display:none" class="node-ref" data-puzzle="133">034</span>
+        <span style="display:none" class="node-ref" data-puzzle="134">093</span>
+        <span style="display:none" class="node-ref" data-puzzle="135">025</span>
+        <span style="display:none" class="node-ref" data-puzzle="136">014</span>
+        <span style="display:none" class="node-ref" data-puzzle="137">023</span>
+        <span style="display:none" class="node-ref" data-puzzle="138">023</span>
+        <span style="display:none" class="node-ref" data-puzzle="139">023</span>
+        <span style="display:none" class="node-ref" data-puzzle="140">021</span>
+        <span style="display:none" class="node-ref" data-puzzle="141">024</span>
+        <span style="display:none" class="node-ref" data-puzzle="142">073</span>
+        <span style="display:none" class="node-ref" data-puzzle="143">018</span>
+        <span style="display:none" class="node-ref" data-puzzle="144">016</span>
+        <span style="display:none" class="node-ref" data-puzzle="145">025</span>
+        <span style="display:none" class="node-ref" data-puzzle="146">023</span>
+        <span style="display:none" class="node-ref" data-puzzle="147">016</span>
+        <span style="display:none" class="node-ref" data-puzzle="148">024</span>
+        <span style="display:none" class="node-ref" data-puzzle="149">070</span>
+        <span style="display:none" class="node-ref" data-puzzle="150">020</span>
+        <span style="display:none" class="node-ref" data-puzzle="151">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="152">003</span>
+        <span style="display:none" class="node-ref" data-puzzle="153">005</span>
+        <span style="display:none" class="node-ref" data-puzzle="154">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="155">003</span>
+        <span style="display:none" class="node-ref" data-puzzle="156">003</span>
+        <span style="display:none" class="node-ref" data-puzzle="157">005</span>
+        <span style="display:none" class="node-ref" data-puzzle="158">005</span>
+        <span style="display:none" class="node-ref" data-puzzle="159">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="160">003</span>
+        <span style="display:none" class="node-ref" data-puzzle="161">003</span>
+        <span style="display:none" class="node-ref" data-puzzle="162">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="163">007</span>
+        <span style="display:none" class="node-ref" data-puzzle="164">004</span>
+        <span style="display:none" class="node-ref" data-puzzle="165">003</span>
+      <div class="wp-h1"><span class="sec-num">7</span> REE Ecosystem and Foundational Applications</div>
+      <div class="wp-h2">7.1 REE SuperApp</div>
+      <div class="wp-p">The REE SuperApp serves as the primary entry point for the AIXC ecosystem, organized in three tiers: Business Layer, Protocol Layer, and Infrastructure Layer. Upon creation, each Agent receives an ERC-8004-compliant identity comprising an Agent Card, a reputation score initialized at 500/10,000, and a $AIXC wallet.</div>
+      <div class="wp-h2">7.2 Application I: Humanoid Robot Data Networks</div>
+      <div class="wp-quote">"Robots do not lack hardware. They lack data. The entity that resolves the data problem holds the key to general-purpose robotics."</div>
+      <div class="wp-p">The year 2026 marks a structural inflection point in humanoid robotics commercialization. Tesla has announced annual production targets in the tens of thousands of Optimus units; Chinese manufacturers are delivering commercial humanoid platforms at sub-$20,000 price points; more than 15 automobile manufacturers have entered the humanoid development competition.<span class="wp-ref" title="Goldman Sachs, 2025">[12]</span> The industry confronts a foundational bottleneck: severe scarcity of real-world physical interaction training data.<span class="wp-ref" title="Brohan et al., RT-2, 2023">[13]</span></div>
+      <div class="wp-p">AIXC restructures data collection as an open three-party market: Data Contributors (Operators), Device Holders (Hosts), and Data Consumers (Buyers).</div>
+      <table class="wp-table">
+        <caption>Table 8: Centralized vs. decentralized robot data collection.</caption>
+        <tr><th>Dimension</th><th>Centralized</th><th>REE Decentralized</th></tr>
+        <tr><td>Collection method</td><td>Internal teams / govt. centers</td><td>Global community crowdsourcing</td></tr>
+        <tr><td>Data diversity</td><td>Single environment</td><td>Cross-scenario, cross-device, cross-region</td></tr>
+        <tr><td>Incentive model</td><td>Employment</td><td>Token incentives + reputation-driven quality</td></tr>
+        <tr><td>Data provenance</td><td>Collecting entity exclusive</td><td>On-chain; perpetual contributor royalties</td></tr>
+        <tr><td>Quality assurance</td><td>Human review (bottlenecked)</td><td>Cryptographic + multi-modal scoring</td></tr>
+        <tr><td>Scalability</td><td>Capital-constrained</td><td>Network effects-driven</td></tr>
+      </table>
+      <div class="wp-h2">7.3 Application II: Intelligent Vehicle Edge Computing</div>
+      <div class="wp-quote">"Every intelligent vehicle is an underutilized supercomputer. Every parking lot is a dormant data center."</div>
+      <div class="wp-p">Contemporary autonomous vehicles incorporate compute substrates capable of sustained throughput in the hundreds of TOPS range. During stationary and low-speed periods, over 90% of this capacity remains unutilized.<span class="wp-ref" title="Shi et al., Edge Computing, IEEE IoT 2016">[14]</span> AIXC enables compute sharing via Agent proxy with automated settlement.</div>
+      <div class="wp-h2">7.4 Application III: Autonomous Vehicle Timesharing</div>
+      <div class="wp-quote">"Vehicles should not await human operators. Vehicles should autonomously seek the next service engagement."</div>
+      <div class="wp-p">As autonomous driving capabilities mature, vehicles can operate as autonomous economic agents.<span class="wp-ref" title="Waymo, 2024">[15]</span> High-reputation Agents command greater order flow and premium pricing authority.</div>
+      <div class="wp-h2">7.5 Application IV: EAI Secondary Markets</div>
+      <div class="wp-quote">"A robotic system's value should be determined not by its manufacture date alone, but by its verified operational history."</div>
+      <div class="wp-p">Secondary markets for intelligent physical devices are characterized by severe information asymmetry — the classic market for lemons problem.<span class="wp-ref" title="Akerlof, QJE 1970">[16]</span> A robotic system carrying a reputation score of 9,500/10,000 with a verified record of 10,000 completed tasks commands a substantial premium. Historical reputation is permanently retained and does not reset upon ownership transfer.</div>
+      <div class="wp-h2">7.6 Ecosystem Flywheel</div>
+      <div class="wp-p">The four application domains constitute an interdependent economic cycle: Data Collection → Edge Computing → Vehicle Timesharing → Secondary Markets → Data Collection, with self-reinforcing network effects at each stage.</div>
+      <div class="wp-h2">7.7 Agent Lifecycle</div>
+      <table class="wp-table">
+        <caption>Table 9: Agent operational lifecycle stages.</caption>
+        <tr><th>Stage</th><th>Condition</th><th>Description</th></tr>
+        <tr><td>Draft</td><td>Definition submitted</td><td>Configuration phase; not executable</td></tr>
+        <tr><td>Sandbox</td><td>Validation passed</td><td>Simulated environment testing</td></tr>
+        <tr><td>Probation</td><td>10 successful completions</td><td>Live transactions; limited discovery visibility</td></tr>
+        <tr><td>Active</td><td>20 successful + reputation threshold</td><td>Full visibility and routing eligibility</td></tr>
+        <tr><td>Preferred</td><td>Top 10% + 100 completions</td><td>Priority recommendation; reduced fee tier</td></tr>
+        <tr><td>Dormant</td><td>30 days without activity</td><td>Suspended; identity and reputation preserved</td></tr>
+        <tr><td>Retired</td><td>Voluntary or governance resolution</td><td>Permanently disabled; reputation archived</td></tr>
+      </table>
+    </div>
+
+    <div class="wp-section" id="section-8">
+      <span style="display:none" class="node-ref" data-puzzle="166">015</span>
+        <span style="display:none" class="node-ref" data-puzzle="167">020</span>
+        <span style="display:none" class="node-ref" data-puzzle="168">028</span>
+        <span style="display:none" class="node-ref" data-puzzle="169">015</span>
+        <span style="display:none" class="node-ref" data-puzzle="170">015</span>
+        <span style="display:none" class="node-ref" data-puzzle="171">093</span>
+        <span style="display:none" class="node-ref" data-puzzle="172">007</span>
+        <span style="display:none" class="node-ref" data-puzzle="173">034</span>
+        <span style="display:none" class="node-ref" data-puzzle="174">018</span>
+        <span style="display:none" class="node-ref" data-puzzle="175">029</span>
+        <span style="display:none" class="node-ref" data-puzzle="176">041</span>
+        <span style="display:none" class="node-ref" data-puzzle="177">020</span>
+        <span style="display:none" class="node-ref" data-puzzle="178">074</span>
+        <span style="display:none" class="node-ref" data-puzzle="179">020</span>
+        <span style="display:none" class="node-ref" data-puzzle="180">161</span>
+        <span style="display:none" class="node-ref" data-puzzle="181">024</span>
+        <span style="display:none" class="node-ref" data-puzzle="182">024</span>
+        <span style="display:none" class="node-ref" data-puzzle="183">012</span>
+        <span style="display:none" class="node-ref" data-puzzle="184">025</span>
+        <span style="display:none" class="node-ref" data-puzzle="185">013</span>
+      <div class="wp-h1"><span class="sec-num">8</span> Development Roadmap</div>
+      <table class="wp-table">
+        <caption>Table 10: AIXC development roadmap.</caption>
+        <tr><th>Phase</th><th>Timeline</th><th>Key Milestones</th></tr>
+        <tr><td>1</td><td>M1–M6</td><td>Chain testnet; REE SuperApp Beta on Base; ERC-8004 reference implementation; TGE</td></tr>
+        <tr><td>2</td><td>M7–M12</td><td>Native mainnet launch; full SuperApp migration; Discovery and Schedule protocols</td></tr>
+        <tr><td>3</td><td>M13–M18</td><td>RWA-specialized DeFi (DEX, lending); EAI-native oracle; REE Launchpad</td></tr>
+        <tr><td>4</td><td>M19+</td><td>Multi-chain RWA &amp; EAI aggregation; REE DAO full governance deployment</td></tr>
+      </table>
+      <div class="wp-h2">8.1 Phase 1: Foundation Architecture (M1–M6)</div>
+      <div class="wp-p">Objective: instantiate KV + Search hybrid storage; minimum viable ERC-8004 implementation. Deploy hybrid storage engine; implement dual-account semantics; publish ERC-8004 reference implementation on Base; onboard six foundational Agent categories; establish initial liquidity pools via TGE.</div>
+      <div class="wp-h2">8.2 Phase 2: Mainnet Launch (M7–M12)</div>
+      <div class="wp-p">Objective: transition to native mainnet. Launch native PoS chain open to global validator participation; mirror Base chain assets and ERC-8004 records to mainnet; deploy Discovery and Schedule protocols.</div>
+      <div class="wp-h2">8.3 Phase 3: RWA Financial Infrastructure (M13–M18)</div>
+      <div class="wp-p">Objective: build DeFi infrastructure around asset liquidity. Launch RWA-specialized DEX and lending protocols with ERC-8004 reputation-weighted collateralization models.<span class="wp-ref" title="Gudgeon et al., DeFi, ACM AFT 2020">[17]</span> Develop EAI-native oracle infrastructure; open REE Launchpad for third-party tokenization.</div>
+      <div class="wp-h2">8.4 Phase 4: Multi-Chain and DAO Governance (M19+)</div>
+      <div class="wp-p">Objective: cross-chain expansion; community governance transition. Establish bridge layer integrating Ethereum, Solana, and other chain RWA assets. Fully decentralize governance via REE DAO.</div>
+    </div>
+
+    <div class="wp-section" id="section-9">
+      <span style="display:none" class="node-ref" data-puzzle="186">029</span>
+        <span style="display:none" class="node-ref" data-puzzle="187">036</span>
+        <span style="display:none" class="node-ref" data-puzzle="188">034</span>
+        <span style="display:none" class="node-ref" data-puzzle="189">126</span>
+        <span style="display:none" class="node-ref" data-puzzle="190">144</span>
+        <span style="display:none" class="node-ref" data-puzzle="191">100</span>
+        <span style="display:none" class="node-ref" data-puzzle="192">037</span>
+        <span style="display:none" class="node-ref" data-puzzle="193">180</span>
+        <span style="display:none" class="node-ref" data-puzzle="194">003</span>
+        <span style="display:none" class="node-ref" data-puzzle="195">037</span>
+        <span style="display:none" class="node-ref" data-puzzle="196">155</span>
+        <span style="display:none" class="node-ref" data-puzzle="197">012</span>
+        <span style="display:none" class="node-ref" data-puzzle="198">022</span>
+        <span style="display:none" class="node-ref" data-puzzle="199">011</span>
+        <span style="display:none" class="node-ref" data-puzzle="200">000</span>
+      <div class="wp-h1"><span class="sec-num">9</span> Conclusion</div>
+      <div class="wp-p">This paper has presented AIXC as a principled architectural response to the structural coordination gap between autonomous AI Agents and physically capable EAI systems. AIXC addresses these gaps through three interlocking innovations: a dual-account protocol model treating Human and Agent identities as first-class primitives; the ERC-8004 trust layer standard formalizing capability attestation, dynamic reputation, and work verification; and a proxy-mediated EAI participation model enabling physical devices to enter the network economy without direct chain interaction.</div>
+      <div class="wp-p">The long-term trajectory is toward a fully decentralized AI machine economy — physical productive assets operating as autonomous economic agents, discovering service opportunities, executing tasks, accumulating verifiable reputation, and distributing economic returns.</div>
+    </div>
+
+    <div class="references">
+      <div class="wp-h1"><span class="sec-num">Ref</span> References</div>
+      <div class="ref-item"><span class="ref-num">[1]</span> Liskov, B. Practical Use of Clocks. Distributed Systems, 1993.</div>
+      <div class="ref-item"><span class="ref-num">[2]</span> Boston Dynamics; Tesla AI; Unitree Robotics. Commercial humanoid robot deployment reports, Q3–Q4 2025.</div>
+      <div class="ref-item"><span class="ref-num">[3]</span> Wood, G. Ethereum: A Secure Decentralised Generalised Transaction Ledger. Ethereum Yellow Paper, 2014.</div>
+      <div class="ref-item"><span class="ref-num">[4]</span> Centrifuge; MakerDAO. Real World Assets in DeFi: A Framework for Tokenized Credit. 2023.</div>
+      <div class="ref-item"><span class="ref-num">[5]</span> Yao, S. et al. ReAct: Synergizing Reasoning and Acting in Language Models. ICLR 2023.</div>
+      <div class="ref-item"><span class="ref-num">[6]</span> Buterin, V. et al. ERC-4337: Account Abstraction Using Alt Mempool. Ethereum Improvement Proposals, 2023.</div>
+      <div class="ref-item"><span class="ref-num">[7]</span> Leshner, R. &amp; Hayes, G. Compound: The Money Market Protocol. 2021.</div>
+      <div class="ref-item"><span class="ref-num">[8]</span> Peng, Z. et al. Scalable Identity Management for Heterogeneous IoT Device Networks. IEEE IoT Journal, 2024.</div>
+      <div class="ref-item"><span class="ref-num">[9]</span> Spence, A.M. Job Market Signaling. Quarterly Journal of Economics, 87(3):355–374, 1973.</div>
+      <div class="ref-item"><span class="ref-num">[10]</span> Kalodner, H. et al. Arbitrum: Scalable, Private Smart Contracts. USENIX Security 2018.</div>
+      <div class="ref-item"><span class="ref-num">[11]</span> Narayanan, A. et al. Bitcoin and Cryptocurrency Technologies. Princeton University Press, 2016.</div>
+      <div class="ref-item"><span class="ref-num">[12]</span> Goldman Sachs Global Investment Research. Humanoid Robots: Dawn of a New Era. 2025.</div>
+      <div class="ref-item"><span class="ref-num">[13]</span> Brohan, A. et al. RT-2: Vision-Language-Action Models. Google DeepMind, 2023.</div>
+      <div class="ref-item"><span class="ref-num">[14]</span> Shi, W. et al. Edge Computing: Vision and Challenges. IEEE IoT Journal, 3(5):637–646, 2016.</div>
+      <div class="ref-item"><span class="ref-num">[15]</span> Waymo LLC. Waymo One: Commercial Autonomous Ride-Hailing Service Report. 2024.</div>
+      <div class="ref-item"><span class="ref-num">[16]</span> Akerlof, G.A. The Market for Lemons. Quarterly Journal of Economics, 84(3):488–500, 1970.</div>
+      <div class="ref-item"><span class="ref-num">[17]</span> Gudgeon, L. et al. DeFi Protocols for Loanable Funds. ACM AFT 2020.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TREASURE MAP MODAL -->
+<div class="modal-overlay" id="treasureModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeTreasureMap()">✕</button>
+    <div class="treasure-map-wrap">
+      <div class="treasure-map-label">⬡ Agent Genesis Hunt — Circuit Signal Map</div>
+      <svg id="treasureSVG" viewBox="0 0 860 280" width="100%" style="display:block;">
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(0,212,255,0.05)" stroke-width="0.5"/>
+          </pattern>
+          <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="glow2"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="860" height="280" fill="#050810"/>
+        <rect width="860" height="280" fill="url(#grid)"/>
+        <!-- Decorative noise circuits (no morse) -->
+        <g stroke="#1a2540" stroke-width="1.5" fill="none">
+          <polyline points="0,50 70,50 70,30 160,30"/><polyline points="0,110 55,110 55,90 130,90 130,70 200,70"/>
+          <polyline points="0,190 45,190 45,210 125,210 125,170 200,170"/>
+          <polyline points="860,70 775,70 775,50 700,50"/><polyline points="860,150 815,150 815,130 735,130 735,110 675,110"/>
+          <polyline points="860,210 795,210 795,190 715,190 715,230 655,230"/>
+        </g>
+        <g fill="#1a2540">
+          <circle cx="70" cy="50" r="3"/><circle cx="55" cy="110" r="3"/><circle cx="45" cy="190" r="3"/>
+          <circle cx="775" cy="70" r="3"/><circle cx="815" cy="150" r="3"/><circle cx="795" cy="210" r="3"/>
+        </g>
+        <!-- MAIN SIGNAL LINE — Morse for "SHA256 INDEX SIX" -->
+        <!-- Rule: filled circle r=4 = dot, thick line w=6 len>=20 = dash, open circle r=8 = char sep, open circle r=12 = word sep -->
+        <g data-signal="main" filter="url(#glow)">
+          <line x1="0" y1="140" x2="182" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <!-- S: ... -->
+          <circle cx="190" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="194" y1="140" x2="202" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="210" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="214" y1="140" x2="222" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="230" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <circle cx="242" cy="140" r="8" fill="none" stroke="#00d4ff" stroke-width="1.5" data-signal="main" data-morse="sep"/>
+          <line x1="250" y1="140" x2="258" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <!-- H: .... -->
+          <circle cx="266" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="270" y1="140" x2="278" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="286" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="290" y1="140" x2="298" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="306" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="310" y1="140" x2="318" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="326" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <circle cx="338" cy="140" r="8" fill="none" stroke="#00d4ff" stroke-width="1.5" data-signal="main" data-morse="sep"/>
+          <line x1="346" y1="140" x2="354" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <!-- A: .- -->
+          <circle cx="362" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="366" y1="140" x2="374" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <line x1="374" y1="140" x2="398" y2="140" stroke="#00d4ff" stroke-width="6" data-signal="main" data-morse="dash"/>
+          <circle cx="410" cy="140" r="8" fill="none" stroke="#00d4ff" stroke-width="1.5" data-signal="main" data-morse="sep"/>
+          <!-- word gap -->
+          <circle cx="424" cy="140" r="12" fill="none" stroke="rgba(0,212,255,0.35)" stroke-width="1" data-signal="main" data-morse="word"/>
+          <line x1="436" y1="140" x2="444" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <!-- I: .. -->
+          <circle cx="452" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="456" y1="140" x2="464" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="472" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <circle cx="484" cy="140" r="8" fill="none" stroke="#00d4ff" stroke-width="1.5" data-signal="main" data-morse="sep"/>
+          <line x1="492" y1="140" x2="500" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <!-- X: -..- -->
+          <line x1="500" y1="140" x2="524" y2="140" stroke="#00d4ff" stroke-width="6" data-signal="main" data-morse="dash"/>
+          <line x1="524" y1="140" x2="532" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="540" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="544" y1="140" x2="552" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="560" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="564" y1="140" x2="572" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <line x1="572" y1="140" x2="596" y2="140" stroke="#00d4ff" stroke-width="6" data-signal="main" data-morse="dash"/>
+          <circle cx="608" cy="140" r="8" fill="none" stroke="#00d4ff" stroke-width="1.5" data-signal="main" data-morse="sep"/>
+          <!-- word gap -->
+          <circle cx="622" cy="140" r="12" fill="none" stroke="rgba(0,212,255,0.35)" stroke-width="1" data-signal="main" data-morse="word"/>
+          <line x1="634" y1="140" x2="642" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <!-- S: ... -->
+          <circle cx="650" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="654" y1="140" x2="662" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="670" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="674" y1="140" x2="682" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="690" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <circle cx="702" cy="140" r="8" fill="none" stroke="#00d4ff" stroke-width="1.5" data-signal="main" data-morse="sep"/>
+          <line x1="710" y1="140" x2="718" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <!-- I: .. -->
+          <circle cx="726" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="730" y1="140" x2="738" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="746" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <circle cx="758" cy="140" r="8" fill="none" stroke="#00d4ff" stroke-width="1.5" data-signal="main" data-morse="sep"/>
+          <line x1="766" y1="140" x2="774" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <!-- X: -..- -->
+          <line x1="774" y1="140" x2="798" y2="140" stroke="#00d4ff" stroke-width="6" data-signal="main" data-morse="dash"/>
+          <line x1="798" y1="140" x2="806" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="814" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="818" y1="140" x2="826" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <circle cx="834" cy="140" r="4" fill="#00d4ff" data-signal="main" data-morse="dot"/>
+          <line x1="838" y1="140" x2="846" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+          <line x1="846" y1="140" x2="860" y2="140" stroke="#00d4ff" stroke-width="2" data-signal="main"/>
+        </g>
+        <circle cx="0" cy="140" r="6" fill="#00d4ff" opacity=".8" filter="url(#glow2)"/>
+        <circle cx="860" cy="140" r="6" fill="#00d4ff" opacity=".8" filter="url(#glow2)"/>
+        <text x="430" y="270" text-anchor="middle" font-family="Space Mono" font-size="9" fill="rgba(0,212,255,0.35)" letter-spacing="3">MAIN SIGNAL — data-signal="main" — DECODE THE MORSE</text>
+      </svg>
+    </div>
+
+    <div class="rules-wrap">
+      <div class="rules-title">⬡ Agent Genesis Hunt</div>
+      <div class="hunt-lore">
+        <p>200 signals are embedded in this document.</p>
+        <p>Each one is waiting to be found.</p>
+        <p>The circuit above carries a message.</p>
+        <p>Read it correctly and you will know how to proceed.</p>
+        <p class="hint">The rest is in the white paper.</p>
+      </div>
+      <div class="hunt-steps">
+        <div class="hunt-step"><span class="hunt-step-num">01</span><span>Decode the circuit. Find the formula.</span></div>
+        <div class="hunt-step"><span class="hunt-step-num">02</span><span>Read the white paper. Find 200 signals.</span></div>
+        <div class="hunt-step"><span class="hunt-step-num">03</span><span>Apply the formula. Derive the key.</span></div>
+        <div class="hunt-step"><span class="hunt-step-num">04</span><span>Encode in Morse. Claim on X — first wins.</span></div>
+      </div>
+      <div class="hunt-submit">
+        <div class="hunt-submit-label">Submission format</div>
+        <div class="hunt-submit-code">@AIXC_official &nbsp;·&nbsp; Puzzle #NNN &nbsp;·&nbsp; [morse key] &nbsp;·&nbsp; #AgentGenesisHunt</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PUZZLE_DATA = {"1": {"id": 1, "index": "100", "key": "100#001", "data_id": "3a9f9e", "b_value": "IDENTITY", "aria_label": "SURFTlRJVFk=", "C": "57ecb391c259bcd6", "morse_key": "..... / --... / . / -.-. / -... / ...-- / ----. / .---- / -.-. / ..--- / ..... / ----. / -... / -.-. / -.. / -....", "is_hard": false}, "2": {"id": 2, "index": "000", "key": "000#002", "data_id": "d14d68", "b_value": "REPUTATION", "aria_label": "UkVQVVRBVElPTg==", "C": "109f74bc938e6b4d", "morse_key": ".---- / ----- / ----. / ..-. / --... / ....- / -... / -.-. / ----. / ...-- / ---.. / . / -.... / -... / ....- / -..", "is_hard": false}, "3": {"id": 3, "index": "000", "key": "000#003", "data_id": "b8e6c6", "b_value": "VALIDATION", "aria_label": "VkFMSURBVElPTg==", "C": "b5cba8364d6500ed", "morse_key": "-... / ..... / -.-. / -... / .- / ---.. / ...-- / -.... / ....- / -.. / -.... / ..... / ----- / ----- / . / -..", "is_hard": false}, "4": {"id": 4, "index": "000", "key": "000#004", "data_id": "23bc4e", "b_value": "AGENT", "aria_label": "QUdFTlQ=", "C": "71de99b86a98932b", "morse_key": "--... / .---- / -.. / . / ----. / ----. / -... / ---.. / -.... / .- / ----. / ---.. / ----. / ...-- / ..--- / -...", "is_hard": false}, "5": {"id": 5, "index": "000", "key": "000#005", "data_id": "75944d", "b_value": "HUMAN", "aria_label": "SFVNQU4=", "C": "e2187a6579cfcf1f", "morse_key": ". / ..--- / .---- / ---.. / --... / .- / -.... / ..... / --... / ----. / -.-. / ..-. / -.-. / ..-. / .---- / ..-.", "is_hard": false}, "6": {"id": 6, "index": "000", "key": "000#006", "data_id": "a74925", "b_value": "PROXY", "aria_label": "UFJPWFk=", "C": "4920b19a9d86626f", "morse_key": "....- / ----. / ..--- / ----- / -... / .---- / ----. / .- / ----. / -.. / ---.. / -.... / -.... / ..--- / -.... / ..-.", "is_hard": false}, "7": {"id": 7, "index": "100", "key": "100#007", "data_id": "f091e8", "b_value": "EAI", "aria_label": "RUFJ", "C": "a116f32b7181f708", "morse_key": ".- / .---- / .---- / -.... / ..-. / ...-- / ..--- / -... / --... / .---- / ---.. / .---- / ..-. / --... / ----- / ---..", "is_hard": false}, "8": {"id": 8, "index": "000", "key": "000#008", "data_id": "3a71bd", "b_value": "RWA", "aria_label": "UldB", "C": "bb21a408d37a047e", "morse_key": "-... / -... / ..--- / .---- / .- / ....- / ----- / ---.. / -.. / ...-- / --... / .- / ----- / ....- / --... / .", "is_hard": false}, "9": {"id": 9, "index": "000", "key": "000#009", "data_id": "66c8e6", "b_value": "DISCOVERY", "aria_label": "RElTQ09WRVJZ", "C": "d852f3f272a1024b", "morse_key": "-.. / ---.. / ..... / ..--- / ..-. / ...-- / ..-. / ..--- / --... / ..--- / .- / .---- / ----- / ..--- / ....- / -...", "is_hard": false}, "10": {"id": 10, "index": "000", "key": "000#010", "data_id": "eb3b71", "b_value": "SCHEDULE", "aria_label": "U0NIRURVTEU=", "C": "2133dcac8725ae5a", "morse_key": "..--- / .---- / ...-- / ...-- / -.. / -.-. / .- / -.-. / ---.. / --... / ..--- / ..... / .- / . / ..... / .-", "is_hard": false}, "11": {"id": 11, "index": "100", "key": "100#011", "data_id": "b51703", "b_value": "SETTLEMENT", "aria_label": "U0VUVExFTUVOVA==", "C": "535deb88373155a8", "morse_key": "..... / ...-- / ..... / -.. / . / -... / ---.. / ---.. / ...-- / --... / ...-- / .---- / ..... / ..... / .- / ---..", "is_hard": false}, "12": {"id": 12, "index": "000", "key": "000#012", "data_id": "e7a5eb", "b_value": "CAPABILITY", "aria_label": "Q0FQQUJJTElUWQ==", "C": "e095df2c869d4bd8", "morse_key": ". / ----- / ----. / ..... / -.. / ..-. / ..--- / -.-. / ---.. / -.... / ----. / -.. / ....- / -... / -.. / ---..", "is_hard": false}, "13": {"id": 13, "index": "015", "key": "015#013", "data_id": "df6a95", "b_value": "TRUST", "aria_label": "VFJVU1Q=", "C": "abafa93024395ad7", "morse_key": ".- / -... / .- / ..-. / .- / ----. / ...-- / ----- / ..--- / ....- / ...-- / ----. / ..... / .- / -.. / --...", "is_hard": false}, "14": {"id": 14, "index": "000", "key": "000#014", "data_id": "a58bc3", "b_value": "STAKE", "aria_label": "U1RBS0U=", "C": "b58abf5f9bd25f5a", "morse_key": "-... / ..... / ---.. / .- / -... / ..-. / ..... / ..-. / ----. / -... / -.. / ..--- / ..... / ..-. / ..... / .-", "is_hard": false}, "15": {"id": 15, "index": "090", "key": "090#015", "data_id": "01ccd2", "b_value": "EPOCH", "aria_label": "RVBPQ0g=", "C": "af4f9e06077a6eb7", "morse_key": ".- / ..-. / ....- / ..-. / ----. / . / ----- / -.... / ----- / --... / --... / .- / -.... / . / -... / --...", "is_hard": false}, "16": {"id": 16, "index": "100", "key": "100#016", "data_id": "4527b7", "b_value": "ACTIVE", "aria_label": "QUNUSVZF", "C": "868357c6da1f478c", "morse_key": "---.. / -.... / ---.. / ...-- / ..... / --... / -.-. / -.... / -.. / .- / .---- / ..-. / ....- / --... / ---.. / -.-.", "is_hard": false}, "17": {"id": 17, "index": "010", "key": "010#017", "data_id": "6be3bd", "b_value": "PAUSED", "aria_label": "UEFVU0VE", "C": "c544f010962d9118", "morse_key": "-.-. / ..... / ....- / ....- / ..-. / ----- / .---- / ----- / ----. / -.... / ..--- / -.. / ----. / .---- / .---- / ---..", "is_hard": false}, "18": {"id": 18, "index": "020", "key": "020#018", "data_id": "ddc06b", "b_value": "HYBRID", "aria_label": "SFlCUklE", "C": "4055446937a2132b", "morse_key": "....- / ----- / ..... / ..... / ....- / ....- / -.... / ----. / ...-- / --... / .- / ..--- / .---- / ...-- / ..--- / -...", "is_hard": false}, "19": {"id": 19, "index": "030", "key": "030#019", "data_id": "4b9b4c", "b_value": "PHYSICAL", "aria_label": "UEhZU0lDQUw=", "C": "6f14479bc9e4aeab", "morse_key": "-.... / ..-. / .---- / ....- / ....- / --... / ----. / -... / -.-. / ----. / . / ....- / .- / . / .- / -...", "is_hard": false}, "20": {"id": 20, "index": "100", "key": "100#020", "data_id": "fa8eec", "b_value": "SOFTWARE", "aria_label": "U09GVFdBUkU=", "C": "3355d4dde015e825", "morse_key": "...-- / ...-- / ..... / ..... / -.. / ....- / -.. / -.. / . / ----- / .---- / ..... / . / ---.. / ..--- / .....", "is_hard": false}, "21": {"id": 21, "index": "006", "key": "006#021", "data_id": "05c95d", "b_value": "RCP", "aria_label": "UkNQ", "C": "978a7265961f5bf8", "morse_key": "----. / --... / ---.. / .- / --... / ..--- / -.... / ..... / ----. / -.... / .---- / ..-. / ..... / -... / ..-. / ---..", "is_hard": false}, "22": {"id": 22, "index": "010", "key": "010#022", "data_id": "46ea16", "b_value": "ROP", "aria_label": "Uk9Q", "C": "ee5e89f989a5b871", "morse_key": ". / . / ..... / . / ---.. / ----. / ..-. / ----. / ---.. / ----. / .- / ..... / -... / ---.. / --... / .----", "is_hard": false}, "23": {"id": 23, "index": "050", "key": "050#023", "data_id": "3d9fd8", "b_value": "FLYWHEEL", "aria_label": "RkxZV0hFRUw=", "C": "613978162d1bdb81", "morse_key": "-.... / .---- / ...-- / ----. / --... / ---.. / .---- / -.... / ..--- / -.. / .---- / -... / -.. / -... / ---.. / .----", "is_hard": false}, "24": {"id": 24, "index": "020", "key": "020#024", "data_id": "2833ae", "b_value": "SANDBOX", "aria_label": "U0FOREJPWA==", "C": "187b5b189d0ec067", "morse_key": ".---- / ---.. / --... / -... / ..... / -... / .---- / ---.. / ----. / -.. / ----- / . / -.-. / ----- / -.... / --...", "is_hard": false}, "25": {"id": 25, "index": "100", "key": "100#025", "data_id": "e8f30a", "b_value": "PROBATION", "aria_label": "UFJPQkFUSU9O", "C": "6c18b7661cf66c22", "morse_key": "-.... / -.-. / .---- / ---.. / -... / --... / -.... / -.... / .---- / -.-. / ..-. / -.... / -.... / -.-. / ..--- / ..---", "is_hard": false}, "26": {"id": 26, "index": "100", "key": "100#026", "data_id": "1bee88", "b_value": "PREFERRED", "aria_label": "UFJFRkVSUkVE", "C": "748609f8c6b8fb2b", "morse_key": "--... / ....- / ---.. / -.... / ----- / ----. / ..-. / ---.. / -.-. / -.... / -... / ---.. / ..-. / -... / ..--- / -...", "is_hard": false}, "27": {"id": 27, "index": "100", "key": "100#027", "data_id": "9b25c1", "b_value": "DORMANT", "aria_label": "RE9STUFOVA==", "C": "4f5a34b7d7f9e35d", "morse_key": "....- / ..-. / ..... / .- / ...-- / ....- / -... / --... / -.. / --... / ..-. / ----. / . / ...-- / ..... / -..", "is_hard": false}, "28": {"id": 28, "index": "004", "key": "004#028", "data_id": "9bad89", "b_value": "RETIRED", "aria_label": "UkVUSVJFRA==", "C": "283ee69eea71989d", "morse_key": "..--- / ---.. / ...-- / . / . / -.... / ----. / . / . / .- / --... / .---- / ----. / ---.. / ----. / -..", "is_hard": false}, "29": {"id": 29, "index": "004", "key": "004#029", "data_id": "8fec93", "b_value": "OPTIMISTIC", "aria_label": "T1BUSU1JU1RJQw==", "C": "e9cf6af61b774bbc", "morse_key": ". / ----. / -.-. / ..-. / -.... / .- / ..-. / -.... / .---- / -... / --... / --... / ....- / -... / -... / -.-.", "is_hard": false}, "30": {"id": 30, "index": "000", "key": "000#030", "data_id": "eded8e", "b_value": "DETERMINISTIC", "aria_label": "REVURVJNSU5JU1RJQw==", "C": "56ca489bee2f74dd", "morse_key": "..... / -.... / -.-. / .- / ....- / ---.. / ----. / -... / . / . / ..--- / ..-. / --... / ....- / -.. / -..", "is_hard": false}, "31": {"id": 31, "index": "000", "key": "000#031", "data_id": "a3ece7", "b_value": "PROTOCOL", "aria_label": "UFJPVE9DT0w=", "C": "0909727d23c331bb", "morse_key": "----- / ----. / ----- / ----. / --... / ..--- / --... / -.. / ..--- / ...-- / -.-. / ...-- / ...-- / .---- / -... / -...", "is_hard": false}, "32": {"id": 32, "index": "000", "key": "000#032", "data_id": "336afb", "b_value": "NETWORK", "aria_label": "TkVUV09SSw==", "C": "ab7581d604f09d8c", "morse_key": ".- / -... / --... / ..... / ---.. / .---- / -.. / -.... / ----- / ....- / ..-. / ----- / ----. / -.. / ---.. / -.-.", "is_hard": false}, "33": {"id": 33, "index": "010", "key": "010#033", "data_id": "db19d1", "b_value": "REGISTRY", "aria_label": "UkVHSVNUUlk=", "C": "235d245350753d9a", "morse_key": "..--- / ...-- / ..... / -.. / ..--- / ....- / ..... / ...-- / ..... / ----- / --... / ..... / ...-- / -.. / ----. / .-", "is_hard": false}, "34": {"id": 34, "index": "010", "key": "010#034", "data_id": "791a90", "b_value": "ACCOUNT", "aria_label": "QUNDT1VOVA==", "C": "05c325f5392d06c1", "morse_key": "----- / ..... / -.-. / ...-- / ..--- / ..... / ..-. / ..... / ...-- / ----. / ..--- / -.. / ----- / -.... / -.-. / .----", "is_hard": false}, "35": {"id": 35, "index": "180", "key": "180#035", "data_id": "278742", "b_value": "BALANCE", "aria_label": "QkFMQU5DRQ==", "C": "bbf608d36f14902b", "morse_key": "-... / -... / ..-. / -.... / ----- / ---.. / -.. / ...-- / -.... / ..-. / .---- / ....- / ----. / ----- / ..--- / -...", "is_hard": false}, "36": {"id": 36, "index": "040", "key": "040#036", "data_id": "d83f86", "b_value": "SIGNATURE", "aria_label": "U0lHTkFUVVJF", "C": "0f0b6b9dc873c936", "morse_key": "----- / ..-. / ----- / -... / -.... / -... / ----. / -.. / -.-. / ---.. / --... / ...-- / -.-. / ----. / ...-- / -....", "is_hard": false}, "37": {"id": 37, "index": "080", "key": "080#037", "data_id": "32b1f7", "b_value": "ORACLE", "aria_label": "T1JBQ0xF", "C": "8057b772a934e9b5", "morse_key": "---.. / ----- / ..... / --... / -... / --... / --... / ..--- / .- / ----. / ...-- / ....- / . / ----. / -... / .....", "is_hard": false}, "38": {"id": 38, "index": "000", "key": "000#038", "data_id": "d9f346", "b_value": "CONSENSUS", "aria_label": "Q09OU0VOU1VT", "C": "f84be9a7fdec74f9", "morse_key": "..-. / ---.. / ....- / -... / . / ----. / .- / --... / ..-. / -.. / . / -.-. / --... / ....- / ..-. / ----.", "is_hard": false}, "39": {"id": 39, "index": "045", "key": "045#039", "data_id": "c24957", "b_value": "GOVERNANCE", "aria_label": "R09WRVJOQU5DRQ==", "C": "49f29c56ed57333b", "morse_key": "....- / ----. / ..-. / ..--- / ----. / -.-. / ..... / -.... / . / -.. / ..... / --... / ...-- / ...-- / ...-- / -...", "is_hard": false}, "40": {"id": 40, "index": "000", "key": "000#040", "data_id": "6f2721", "b_value": "DELEGATE", "aria_label": "REVMRUdBVEU=", "C": "83b4e5697010c3ed", "morse_key": "---.. / ...-- / -... / ....- / . / ..... / -.... / ----. / --... / ----- / .---- / ----- / -.-. / ...-- / . / -..", "is_hard": false}, "41": {"id": 41, "index": "100", "key": "100#041", "data_id": "2849fa", "b_value": "OWNERSHIP", "aria_label": "T1dORVJTSElQ", "C": "8134235374d2eb6f", "morse_key": "---.. / .---- / ...-- / ....- / ..--- / ...-- / ..... / ...-- / --... / ....- / -.. / ..--- / . / -... / -.... / ..-.", "is_hard": false}, "42": {"id": 42, "index": "030", "key": "030#042", "data_id": "5fb38d", "b_value": "TRANSFER", "aria_label": "VFJBTlNGRVI=", "C": "d897fbce68732ae0", "morse_key": "-.. / ---.. / ----. / --... / ..-. / -... / -.-. / . / -.... / ---.. / --... / ...-- / ..--- / .- / . / -----", "is_hard": false}, "43": {"id": 43, "index": "005", "key": "005#043", "data_id": "813539", "b_value": "DEPLOYMENT", "aria_label": "REVQTE9ZTUVOVA==", "C": "984f9192fe045974", "morse_key": "----. / ---.. / ....- / ..-. / ----. / .---- / ----. / ..--- / ..-. / . / ----- / ....- / ..... / ----. / --... / ....-", "is_hard": false}, "44": {"id": 44, "index": "100", "key": "100#044", "data_id": "eb4d8b", "b_value": "EXECUTION", "aria_label": "RVhFQ1VUSU9O", "C": "294ef01d0bbd6349", "morse_key": "..--- / ----. / ....- / . / ..-. / ----- / .---- / -.. / ----- / -... / -... / -.. / -.... / ...-- / ....- / ----.", "is_hard": false}, "45": {"id": 45, "index": "006", "key": "006#045", "data_id": "2fac34", "b_value": "VERIFICATION", "aria_label": "VkVSSUZJQ0FUSU9O", "C": "8d61600fbf97b5f5", "morse_key": "---.. / -.. / -.... / .---- / -.... / ----- / ----- / ..-. / -... / ..-. / ----. / --... / -... / ..... / ..-. / .....", "is_hard": false}, "46": {"id": 46, "index": "006", "key": "006#046", "data_id": "21f78a", "b_value": "ATTESTATION", "aria_label": "QVRURVNUQVRJT04=", "C": "7504e69ba1a909d3", "morse_key": "--... / ..... / ----- / ....- / . / -.... / ----. / -... / .- / .---- / .- / ----. / ----- / ----. / -.. / ...--", "is_hard": false}, "47": {"id": 47, "index": "006", "key": "006#047", "data_id": "56d461", "b_value": "CREDENTIAL", "aria_label": "Q1JFREVOVElBTA==", "C": "55fbc8e047fcd263", "morse_key": "..... / ..... / ..-. / -... / -.-. / ---.. / . / ----- / ....- / --... / ..-. / -.-. / -.. / ..--- / -.... / ...--", "is_hard": false}, "48": {"id": 48, "index": "006", "key": "006#048", "data_id": "182881", "b_value": "BROADCAST", "aria_label": "QlJPQURDQVNU", "C": "583726595435d3c3", "morse_key": "..... / ---.. / ...-- / --... / ..--- / -.... / ..... / ----. / ..... / ....- / ...-- / ..... / -.. / ...-- / -.-. / ...--", "is_hard": false}, "49": {"id": 49, "index": "012", "key": "012#049", "data_id": "0274d1", "b_value": "SYNCHRONIZE", "aria_label": "U1lOQ0hST05JWkU=", "C": "e872981675eb9d7b", "morse_key": ". / ---.. / --... / ..--- / ----. / ---.. / .---- / -.... / --... / ..... / . / -... / ----. / -.. / --... / -...", "is_hard": false}, "50": {"id": 50, "index": "018", "key": "018#050", "data_id": "c9afec", "b_value": "LEDGER", "aria_label": "TEVER0VS", "C": "8121444162d494dd", "morse_key": "---.. / .---- / ..--- / .---- / ....- / ....- / ....- / .---- / -.... / ..--- / -.. / ....- / ----. / ....- / -.. / -..", "is_hard": false}, "51": {"id": 51, "index": "019", "key": "019#051", "data_id": "4df937", "b_value": "VALIDATOR", "aria_label": "VkFMSURBVE9S", "C": "0ed299ecc233bfdc", "morse_key": "----- / . / -.. / ..--- / ----. / ----. / . / -.-. / -.-. / ..--- / ...-- / ...-- / -... / ..-. / -.. / -.-.", "is_hard": false}, "52": {"id": 52, "index": "004", "key": "004#052", "data_id": "3a5bad", "b_value": "PROPOSER", "aria_label": "UFJPUE9TRVI=", "C": "faaa7ca1e635276d", "morse_key": "..-. / .- / .- / .- / --... / -.-. / .- / .---- / . / -.... / ...-- / ..... / ..--- / --... / -.... / -..", "is_hard": false}, "53": {"id": 53, "index": "005", "key": "005#053", "data_id": "110c6c", "b_value": "ARBITRATION", "aria_label": "QVJCSVRSQVRJT04=", "C": "ce82f62ba56ed5bc", "morse_key": "-.-. / . / ---.. / ..--- / ..-. / -.... / ..--- / -... / .- / ..... / -.... / . / -.. / ..... / -... / -.-.", "is_hard": false}, "54": {"id": 54, "index": "002", "key": "002#054", "data_id": "46fcbb", "b_value": "CHALLENGE", "aria_label": "Q0hBTExFTkdF", "C": "b300a9a091029477", "morse_key": "-... / ...-- / ----- / ----- / .- / ----. / .- / ----- / ----. / .---- / ----- / ..--- / ----. / ....- / --... / --...", "is_hard": false}, "55": {"id": 55, "index": "026", "key": "026#055", "data_id": "9315e7", "b_value": "REWARD", "aria_label": "UkVXQVJE", "C": "64839629f73ba8c4", "morse_key": "-.... / ....- / ---.. / ...-- / ----. / -.... / ..--- / ----. / ..-. / --... / ...-- / -... / .- / ---.. / -.-. / ....-", "is_hard": false}, "56": {"id": 56, "index": "017", "key": "017#056", "data_id": "ecb37c", "b_value": "PENALTY", "aria_label": "UEVOQUxUWQ==", "C": "d8d6592668b84306", "morse_key": "-.. / ---.. / -.. / -.... / ..... / ----. / ..--- / -.... / -.... / ---.. / -... / ---.. / ....- / ...-- / ----- / -....", "is_hard": false}, "57": {"id": 57, "index": "009", "key": "009#057", "data_id": "adef7c", "b_value": "SLASHING", "aria_label": "U0xBU0hJTkc=", "C": "d420bca846cf3c9e", "morse_key": "-.. / ....- / ..--- / ----- / -... / -.-. / .- / ---.. / ....- / -.... / -.-. / ..-. / ...-- / -.-. / ----. / .", "is_hard": false}, "58": {"id": 58, "index": "010", "key": "010#058", "data_id": "102e44", "b_value": "BONDING", "aria_label": "Qk9ORElORw==", "C": "337c3909712216dc", "morse_key": "...-- / ...-- / --... / -.-. / ...-- / ----. / ----- / ----. / --... / .---- / ..--- / ..--- / .---- / -.... / -.. / -.-.", "is_hard": false}, "59": {"id": 59, "index": "006", "key": "006#059", "data_id": "a4b93c", "b_value": "UNBONDING", "aria_label": "VU5CT05ESU5H", "C": "e81ba1f9c751cbfa", "morse_key": ". / ---.. / .---- / -... / .- / .---- / ..-. / ----. / -.-. / --... / ..... / .---- / -.-. / -... / ..-. / .-", "is_hard": false}, "60": {"id": 60, "index": "012", "key": "012#060", "data_id": "d03ac4", "b_value": "ROUTING", "aria_label": "Uk9VVElORw==", "C": "76bf0d9ce7ef0338", "morse_key": "--... / -.... / -... / ..-. / ----- / -.. / ----. / -.-. / . / --... / . / ..-. / ----- / ...-- / ...-- / ---..", "is_hard": false}, "61": {"id": 61, "index": "006", "key": "006#061", "data_id": "939fd7", "b_value": "DISPATCH", "aria_label": "RElTUEFUQ0g=", "C": "4c056ac4aedcb76a", "morse_key": "....- / -.-. / ----- / ..... / -.... / .- / -.-. / ....- / .- / . / -.. / -.-. / -... / --... / -.... / .-", "is_hard": false}, "62": {"id": 62, "index": "004", "key": "004#062", "data_id": "b119b0", "b_value": "MATCHING", "aria_label": "TUFUQ0hJTkc=", "C": "686f56ae02a2808f", "morse_key": "-.... / ---.. / -.... / ..-. / ..... / -.... / .- / . / ----- / ..--- / .- / ..--- / ---.. / ----- / ---.. / ..-.", "is_hard": false}, "63": {"id": 63, "index": "045", "key": "045#063", "data_id": "99f09c", "b_value": "SCORING", "aria_label": "U0NPUklORw==", "C": "d814219527b9fc3e", "morse_key": "-.. / ---.. / .---- / ....- / ..--- / .---- / ----. / ..... / ..--- / --... / -... / ----. / ..-. / -.-. / ...-- / .", "is_hard": false}, "64": {"id": 64, "index": "030", "key": "030#064", "data_id": "5bf4b4", "b_value": "RANKING", "aria_label": "UkFOS0lORw==", "C": "c054cc8fe658f861", "morse_key": "-.-. / ----- / ..... / ....- / -.-. / -.-. / ---.. / ..-. / . / -.... / ..... / ---.. / ..-. / ---.. / -.... / .----", "is_hard": false}, "65": {"id": 65, "index": "005", "key": "005#065", "data_id": "d692ab", "b_value": "TELEOPERATION", "aria_label": "VEVMRU9QRVJBVElPTg==", "C": "ddad7dc047dfcec9", "morse_key": "-.. / -.. / .- / -.. / --... / -.. / -.-. / ----- / ....- / --... / -.. / ..-. / -.-. / . / -.-. / ----.", "is_hard": false}, "66": {"id": 66, "index": "100", "key": "100#066", "data_id": "1dd819", "b_value": "DATASET", "aria_label": "REFUQVNFVA==", "C": "39227ec071301947", "morse_key": "...-- / ----. / ..--- / ..--- / --... / . / -.-. / ----- / --... / .---- / ...-- / ----- / .---- / ----. / ....- / --...", "is_hard": false}, "67": {"id": 67, "index": "010", "key": "010#067", "data_id": "899550", "b_value": "COLLECTION", "aria_label": "Q09MTEVDVElPTg==", "C": "6788942466cb4666", "morse_key": "-.... / --... / ---.. / ---.. / ----. / ....- / ..--- / ....- / -.... / -.... / -.-. / -... / ....- / -.... / -.... / -....", "is_hard": false}, "68": {"id": 68, "index": "000", "key": "000#068", "data_id": "50595f", "b_value": "LABELING", "aria_label": "TEFCRUxJTkc=", "C": "120a3ecd68c275a1", "morse_key": ".---- / ..--- / ----- / .- / ...-- / . / -.-. / -.. / -.... / ---.. / -.-. / ..--- / --... / ..... / .- / .----", "is_hard": false}, "69": {"id": 69, "index": "003", "key": "003#069", "data_id": "ba255a", "b_value": "ANNOTATION", "aria_label": "QU5OT1RBVElPTg==", "C": "74f8f324f19fc6c2", "morse_key": "--... / ....- / ..-. / ---.. / ..-. / ...-- / ..--- / ....- / ..-. / .---- / ----. / ..-. / -.-. / -.... / -.-. / ..---", "is_hard": false}, "70": {"id": 70, "index": "015", "key": "015#070", "data_id": "8ce1ac", "b_value": "HUMANOID", "aria_label": "SFVNQU5PSUQ=", "C": "08402e738d66bfd4", "morse_key": "----- / ---.. / ....- / ----- / ..--- / . / --... / ...-- / ---.. / -.. / -.... / -.... / -... / ..-. / -.. / ....-", "is_hard": false}, "71": {"id": 71, "index": "010", "key": "010#071", "data_id": "7db605", "b_value": "ROBOTIC", "aria_label": "Uk9CT1RJQw==", "C": "ce9e434c6e1fd1e4", "morse_key": "-.-. / . / ----. / . / ....- / ...-- / ....- / -.-. / -.... / . / .---- / ..-. / -.. / .---- / . / ....-", "is_hard": false}, "72": {"id": 72, "index": "011", "key": "011#072", "data_id": "775315", "b_value": "AUTONOMOUS", "aria_label": "QVVUT05PTU9VUw==", "C": "fc8de6755c1b74fa", "morse_key": "..-. / -.-. / ---.. / -.. / . / -.... / --... / ..... / ..... / -.-. / .---- / -... / --... / ....- / ..-. / .-", "is_hard": false}, "73": {"id": 73, "index": "012", "key": "012#073", "data_id": "3b67f7", "b_value": "VEHICLE", "aria_label": "VkVISUNMRQ==", "C": "33e3020aeb4ce7ab", "morse_key": "...-- / ...-- / . / ...-- / ----- / ..--- / ----- / .- / . / -... / ....- / -.-. / . / --... / .- / -...", "is_hard": false}, "74": {"id": 74, "index": "019", "key": "019#074", "data_id": "e8031e", "b_value": "DRONE", "aria_label": "RFJPTkU=", "C": "e0e06f14b1d3a76b", "morse_key": ". / ----- / . / ----- / -.... / ..-. / .---- / ....- / -... / .---- / -.. / ...-- / .- / --... / -.... / -...", "is_hard": false}, "75": {"id": 75, "index": "020", "key": "020#075", "data_id": "0688b5", "b_value": "COMPUTE", "aria_label": "Q09NUFVURQ==", "C": "6d9c1c3339d0a58d", "morse_key": "-.... / -.. / ----. / -.-. / .---- / -.-. / ...-- / ...-- / ...-- / ----. / -.. / ----- / .- / ..... / ---.. / -..", "is_hard": false}, "76": {"id": 76, "index": "016", "key": "016#076", "data_id": "59bbe4", "b_value": "INFERENCE", "aria_label": "SU5GRVJFTkNF", "C": "126b71cb5d1c81db", "morse_key": ".---- / ..--- / -.... / -... / --... / .---- / -.-. / -... / ..... / -.. / .---- / -.-. / ---.. / .---- / -.. / -...", "is_hard": false}, "77": {"id": 77, "index": "020", "key": "020#077", "data_id": "ca1aba", "b_value": "THROUGHPUT", "aria_label": "VEhST1VHSFBVVA==", "C": "5d23fa75681fd6b1", "morse_key": "..... / -.. / ..--- / ...-- / ..-. / .- / --... / ..... / -.... / ---.. / .---- / ..-. / -.. / -.... / -... / .----", "is_hard": false}, "78": {"id": 78, "index": "019", "key": "019#078", "data_id": "c4fbe2", "b_value": "LATENCY", "aria_label": "TEFURU5DWQ==", "C": "010cf24c5c6b1ae7", "morse_key": "----- / .---- / ----- / -.-. / ..-. / ..--- / ....- / -.-. / ..... / -.-. / -.... / -... / .---- / .- / . / --...", "is_hard": false}, "79": {"id": 79, "index": "021", "key": "021#079", "data_id": "8cf48f", "b_value": "BANDWIDTH", "aria_label": "QkFORFdJRFRI", "C": "8b652eb239bd7d6a", "morse_key": "---.. / -... / -.... / ..... / ..--- / . / -... / ..--- / ...-- / ----. / -... / -.. / --... / -.. / -.... / .-", "is_hard": false}, "80": {"id": 80, "index": "017", "key": "017#080", "data_id": "d1aeec", "b_value": "TIMESHARING", "aria_label": "VElNRVNIQVJJTkc=", "C": "85083465ba71bb2a", "morse_key": "---.. / ..... / ----- / ---.. / ...-- / ....- / -.... / ..... / -... / .- / --... / .---- / -... / -... / ..--- / .-", "is_hard": false}, "81": {"id": 81, "index": "023", "key": "023#081", "data_id": "0a5a5b", "b_value": "UTILIZATION", "aria_label": "VVRJTElaQVRJT04=", "C": "01f3a9ed57197333", "morse_key": "----- / .---- / ..-. / ...-- / .- / ----. / . / -.. / ..... / --... / .---- / ----. / --... / ...-- / ...-- / ...--", "is_hard": false}, "82": {"id": 82, "index": "022", "key": "022#082", "data_id": "28df01", "b_value": "CAPACITY", "aria_label": "Q0FQQUNJVFk=", "C": "80b6997e3703a5e2", "morse_key": "---.. / ----- / -... / -.... / ----. / ----. / --... / . / ...-- / --... / ----- / ...-- / .- / ..... / . / ..---", "is_hard": false}, "83": {"id": 83, "index": "033", "key": "033#083", "data_id": "6d0327", "b_value": "PRODUCTIVITY", "aria_label": "UFJPRFVDVElWSVRZ", "C": "74b887e779af1467", "morse_key": "--... / ....- / -... / ---.. / ---.. / --... / . / --... / --... / ----. / .- / ..-. / .---- / ....- / -.... / --...", "is_hard": false}, "84": {"id": 84, "index": "018", "key": "018#084", "data_id": "71f3ec", "b_value": "REVENUE", "aria_label": "UkVWRU5VRQ==", "C": "e110b3ce9eafad55", "morse_key": ". / .---- / .---- / ----- / -... / ...-- / -.-. / . / ----. / . / .- / ..-. / .- / -.. / ..... / .....", "is_hard": false}, "85": {"id": 85, "index": "018", "key": "018#085", "data_id": "3e387b", "b_value": "SECONDARY", "aria_label": "U0VDT05EQVJZ", "C": "8e4300db8404cb37", "morse_key": "---.. / . / ....- / ...-- / ----- / ----- / -.. / -... / ---.. / ....- / ----- / ....- / -.-. / -... / ...-- / --...", "is_hard": false}, "86": {"id": 86, "index": "024", "key": "024#086", "data_id": "fb2be4", "b_value": "DEPRECIATION", "aria_label": "REVQUkVDSUFUSU9O", "C": "375a0c0979a6c166", "morse_key": "...-- / --... / ..... / .- / ----- / -.-. / ----- / ----. / --... / ----. / .- / -.... / -.-. / .---- / -.... / -....", "is_hard": false}, "87": {"id": 87, "index": "007", "key": "007#087", "data_id": "718338", "b_value": "PROVENANCE", "aria_label": "UFJPVkVOQU5DRQ==", "C": "dc3cc269b62aa626", "morse_key": "-.. / -.-. / ...-- / -.-. / -.-. / ..--- / -.... / ----. / -... / -.... / ..--- / .- / .- / -.... / ..--- / -....", "is_hard": false}, "88": {"id": 88, "index": "016", "key": "016#088", "data_id": "4754c6", "b_value": "HISTORY", "aria_label": "SElTVE9SWQ==", "C": "a8adcb0136e92a2e", "morse_key": ".- / ---.. / .- / -.. / -.-. / -... / ----- / .---- / ...-- / -.... / . / ----. / ..--- / .- / ..--- / .", "is_hard": false}, "89": {"id": 89, "index": "005", "key": "005#089", "data_id": "bdb711", "b_value": "PROFILE", "aria_label": "UFJPRklMRQ==", "C": "4721408417493f64", "morse_key": "....- / --... / ..--- / .---- / ....- / ----- / ---.. / ....- / .---- / --... / ....- / ----. / ...-- / ..-. / -.... / ....-", "is_hard": false}, "90": {"id": 90, "index": "007", "key": "007#090", "data_id": "807176", "b_value": "IMMUTABLE", "aria_label": "SU1NVVRBQkxF", "C": "3eea65005c9514a8", "morse_key": "...-- / . / . / .- / -.... / ..... / ----- / ----- / ..... / -.-. / ----. / ..... / .---- / ....- / .- / ---..", "is_hard": false}, "91": {"id": 91, "index": "006", "key": "006#091", "data_id": "64abb7", "b_value": "TRANSPARENT", "aria_label": "VFJBTlNQQVJFTlQ=", "C": "9f573b06b081e374", "morse_key": "----. / ..-. / ..... / --... / ...-- / -... / ----- / -.... / -... / ----- / ---.. / .---- / . / ...-- / --... / ....-", "is_hard": false}, "92": {"id": 92, "index": "002", "key": "002#092", "data_id": "b90a6d", "b_value": "PERMISSIONLESS", "aria_label": "UEVSTUlTU0lPTkxFU1M=", "C": "446a297db80a8f28", "morse_key": "....- / ....- / -.... / .- / ..--- / ----. / --... / -.. / -... / ---.. / ----- / .- / ---.. / ..-. / ..--- / ---..", "is_hard": false}, "93": {"id": 93, "index": "009", "key": "009#093", "data_id": "73ba30", "b_value": "TRUSTLESS", "aria_label": "VFJVU1RMRVNT", "C": "b9979aa58cf1f2f6", "morse_key": "-... / ----. / ----. / --... / ----. / .- / .- / ..... / ---.. / -.-. / ..-. / .---- / ..-. / ..--- / ..-. / -....", "is_hard": false}, "94": {"id": 94, "index": "012", "key": "012#094", "data_id": "f687c4", "b_value": "COMPOSABLE", "aria_label": "Q09NUE9TQUJMRQ==", "C": "2f1ed1e247fceba2", "morse_key": "..--- / ..-. / .---- / . / -.. / .---- / . / ..--- / ....- / --... / ..-. / -.-. / . / -... / .- / ..---", "is_hard": false}, "95": {"id": 95, "index": "016", "key": "016#095", "data_id": "3c84dc", "b_value": "LIFECYCLE", "aria_label": "TElGRUNZQ0xF", "C": "65ae6d1fa07c8142", "morse_key": "-.... / ..... / .- / . / -.... / -.. / .---- / ..-. / .- / ----- / --... / -.-. / ---.. / .---- / ....- / ..---", "is_hard": false}, "96": {"id": 96, "index": "008", "key": "008#096", "data_id": "aa728d", "b_value": "CREATION", "aria_label": "Q1JFQVRJT04=", "C": "0c23b703d275199a", "morse_key": "----- / -.-. / ..--- / ...-- / -... / --... / ----- / ...-- / -.. / ..--- / --... / ..... / .---- / ----. / ----. / .-", "is_hard": false}, "97": {"id": 97, "index": "011", "key": "011#097", "data_id": "6a9f5a", "b_value": "TERMINATION", "aria_label": "VEVSTUlOQVRJT04=", "C": "8c05de911934fef4", "morse_key": "---.. / -.-. / ----- / ..... / -.. / . / ----. / .---- / .---- / ----. / ...-- / ....- / ..-. / . / ..-. / ....-", "is_hard": false}, "98": {"id": 98, "index": "008", "key": "008#098", "data_id": "db3b9e", "b_value": "MIGRATION", "aria_label": "TUlHUkFUSU9O", "C": "de3b4ce85e22c2df", "morse_key": "-.. / . / ...-- / -... / ....- / -.-. / . / ---.. / ..... / . / ..--- / ..--- / -.-. / ..--- / -.. / ..-.", "is_hard": false}, "99": {"id": 99, "index": "004", "key": "004#099", "data_id": "0c89c0", "b_value": "ARCHIVAL", "aria_label": "QVJDSElWQUw=", "C": "ede9001af526566c", "morse_key": ". / -.. / . / ----. / ----- / ----- / .---- / .- / ..-. / ..... / ..--- / -.... / ..... / -.... / -.... / -.-.", "is_hard": false}, "100": {"id": 100, "index": "010", "key": "010#100", "data_id": "c8178f", "b_value": "DECOMPOSITION", "aria_label": "REVDT01QT1NJVElPTg==", "C": "73ed065795ab0843", "morse_key": "--... / ...-- / . / -.. / ----- / -.... / ..... / --... / ----. / ..... / .- / -... / ----- / ---.. / ....- / ...--", "is_hard": false}, "101": {"id": 101, "index": "007", "key": "007#101", "data_id": "7adba9", "b_value": "AGGREGATION", "aria_label": "QUdHUkVHQVRJT04=", "C": "79b71b56fff7e413", "morse_key": "--... / ----. / -... / --... / .---- / -... / ..... / -.... / ..-. / ..-. / ..-. / --... / . / ....- / .---- / ...--", "is_hard": false}, "102": {"id": 102, "index": "005", "key": "005#102", "data_id": "848825", "b_value": "MONITORING", "aria_label": "TU9OSVRPUklORw==", "C": "64a6de5b9cc49ded", "morse_key": "-.... / ....- / .- / -.... / -.. / . / ..... / -... / ----. / -.-. / -.-. / ....- / ----. / -.. / . / -..", "is_hard": false}, "103": {"id": 103, "index": "007", "key": "007#103", "data_id": "452ac2", "b_value": "REALLOCATION", "aria_label": "UkVBTExPQ0FUSU9O", "C": "96780560f5af06b7", "morse_key": "----. / -.... / --... / ---.. / ----- / ..... / -.... / ----- / ..-. / ..... / .- / ..-. / ----- / -.... / -... / --...", "is_hard": false}, "104": {"id": 104, "index": "009", "key": "009#104", "data_id": "a946e5", "b_value": "FALLBACK", "aria_label": "RkFMTEJBQ0s=", "C": "336940d114c6b66b", "morse_key": "...-- / ...-- / -.... / ----. / ....- / ----- / -.. / .---- / .---- / ....- / -.-. / -.... / -... / -.... / -.... / -...", "is_hard": false}, "105": {"id": 105, "index": "006", "key": "006#105", "data_id": "48daad", "b_value": "COORDINATION", "aria_label": "Q09PUkRJTkFUSU9O", "C": "8c4173f84e137e00", "morse_key": "---.. / -.-. / ....- / .---- / --... / ...-- / ..-. / ---.. / ....- / . / .---- / ...-- / --... / . / ----- / -----", "is_hard": false}, "106": {"id": 106, "index": "009", "key": "009#106", "data_id": "ebf072", "b_value": "INTEGRATION", "aria_label": "SU5URUdSQVRJT04=", "C": "3d4af156c60e1af7", "morse_key": "...-- / -.. / ....- / .- / ..-. / .---- / ..... / -.... / -.-. / -.... / ----- / . / .---- / .- / ..-. / --...", "is_hard": false}, "107": {"id": 107, "index": "007", "key": "007#107", "data_id": "9972c8", "b_value": "ABSTRACTION", "aria_label": "QUJTVFJBQ1RJT04=", "C": "abbce6f1715421f2", "morse_key": ".- / -... / -... / -.-. / . / -.... / ..-. / .---- / --... / .---- / ..... / ....- / ..--- / .---- / ..-. / ..---", "is_hard": false}, "108": {"id": 108, "index": "007", "key": "007#108", "data_id": "0884c5", "b_value": "INTEROPERABILITY", "aria_label": "SU5URVJPUEVSQUJJTElUWQ==", "C": "8e0da4cf0b5d637a", "morse_key": "---.. / . / ----- / -.. / .- / ....- / -.-. / ..-. / ----- / -... / ..... / -.. / -.... / ...-- / --... / .-", "is_hard": false}, "109": {"id": 109, "index": "027", "key": "027#109", "data_id": "d38a47", "b_value": "SOVEREIGNTY", "aria_label": "U09WRVJFSUdOVFk=", "C": "b2baf82901add308", "morse_key": "-... / ..--- / -... / .- / ..-. / ---.. / ..--- / ----. / ----- / .---- / .- / -.. / -.. / ...-- / ----- / ---..", "is_hard": false}, "110": {"id": 110, "index": "022", "key": "022#110", "data_id": "803a28", "b_value": "SIGNAL", "aria_label": "U0lHTkFM", "C": "7a89b4ee0773d822", "morse_key": "--... / .- / ---.. / ----. / -... / ....- / . / . / ----- / --... / --... / ...-- / -.. / ---.. / ..--- / ..---", "is_hard": false}, "111": {"id": 111, "index": "012", "key": "012#111", "data_id": "a11834", "b_value": "GENESIS", "aria_label": "R0VORVNJUw==", "C": "cac9d04291ee3b68", "morse_key": "-.-. / .- / -.-. / ----. / -.. / ----- / ....- / ..--- / ----. / .---- / . / . / ...-- / -... / -.... / ---..", "is_hard": false}, "112": {"id": 112, "index": "016", "key": "016#112", "data_id": "d4823a", "b_value": "AWAKEN", "aria_label": "QVdBS0VO", "C": "443041624dfd28c5", "morse_key": "....- / ....- / ...-- / ----- / ....- / .---- / -.... / ..--- / ....- / -.. / ..-. / -.. / ..--- / ---.. / -.-. / .....", "is_hard": false}, "113": {"id": 113, "index": "020", "key": "020#113", "data_id": "236caa", "b_value": "ORIGIN", "aria_label": "T1JJR0lO", "C": "5444c4329c1ec5e8", "morse_key": "..... / ....- / ....- / ....- / -.-. / ....- / ...-- / ..--- / ----. / -.-. / .---- / . / -.-. / ..... / . / ---..", "is_hard": false}, "114": {"id": 114, "index": "033", "key": "033#114", "data_id": "1a69d6", "b_value": "VERIFY", "aria_label": "VkVSSUZZ", "C": "f63f3df1598b0dc2", "morse_key": "..-. / -.... / ...-- / ..-. / ...-- / -.. / ..-. / .---- / ..... / ----. / ---.. / -... / ----- / -.. / -.-. / ..---", "is_hard": false}, "115": {"id": 115, "index": "031", "key": "031#115", "data_id": "d416a7", "b_value": "NODE", "aria_label": "Tk9ERQ==", "C": "8058743f2ef80ce0", "morse_key": "---.. / ----- / ..... / ---.. / --... / ....- / ...-- / ..-. / ..--- / . / ..-. / ---.. / ----- / -.-. / . / -----", "is_hard": false}, "116": {"id": 116, "index": "032", "key": "032#116", "data_id": "cc20a6", "b_value": "CHAIN", "aria_label": "Q0hBSU4=", "C": "c0a6bc2eafc7e8d5", "morse_key": "-.-. / ----- / .- / -.... / -... / -.-. / ..--- / . / .- / ..-. / -.-. / --... / . / ---.. / -.. / .....", "is_hard": false}, "117": {"id": 117, "index": "007", "key": "007#117", "data_id": "b9c864", "b_value": "RELAY", "aria_label": "UkVMQVk=", "C": "beb481da4ee9f7e9", "morse_key": "-... / . / -... / ....- / ---.. / .---- / -.. / .- / ....- / . / . / ----. / ..-. / --... / . / ----.", "is_hard": false}, "118": {"id": 118, "index": "004", "key": "004#118", "data_id": "0c3fc9", "b_value": "BRIDGE", "aria_label": "QlJJREdF", "C": "2707250f43d0ef8a", "morse_key": "..--- / --... / ----- / --... / ..--- / ..... / ----- / ..-. / ....- / ...-- / -.. / ----- / . / ..-. / ---.. / .-", "is_hard": false}, "119": {"id": 119, "index": "007", "key": "007#119", "data_id": "1a0252", "b_value": "ANCHOR", "aria_label": "QU5DSE9S", "C": "e6664f2b89e800ae", "morse_key": ". / -.... / -.... / -.... / ....- / ..-. / ..--- / -... / ---.. / ----. / . / ---.. / ----- / ----- / .- / .", "is_hard": false}, "120": {"id": 120, "index": "007", "key": "007#120", "data_id": "a1f474", "b_value": "LAYER", "aria_label": "TEFZRVI=", "C": "1b0bd6f200399acd", "morse_key": ".---- / -... / ----- / -... / -.. / -.... / ..-. / ..--- / ----- / ----- / ...-- / ----. / ----. / .- / -.-. / -..", "is_hard": false}, "121": {"id": 121, "index": "004", "key": "004#121", "data_id": "563e0c", "b_value": "FOUNDATION", "aria_label": "Rk9VTkRBVElPTg==", "C": "31ab68b2ce96ed88", "morse_key": "...-- / .---- / .- / -... / -.... / ---.. / -... / ..--- / -.-. / . / ----. / -.... / . / -.. / ---.. / ---..", "is_hard": false}, "122": {"id": 122, "index": "007", "key": "007#122", "data_id": "551705", "b_value": "STORAGE", "aria_label": "U1RPUkFHRQ==", "C": "80162f8056ee7fda", "morse_key": "---.. / ----- / .---- / -.... / ..--- / ..-. / ---.. / ----- / ..... / -.... / . / . / --... / ..-. / -.. / .-", "is_hard": false}, "123": {"id": 123, "index": "006", "key": "006#123", "data_id": "1aba69", "b_value": "APPLICATION", "aria_label": "QVBQTElDQVRJT04=", "C": "ecc993bccbd7cf7b", "morse_key": ". / -.-. / -.-. / ----. / ----. / ...-- / -... / -.-. / -.-. / -... / -.. / --... / -.-. / ..-. / --... / -...", "is_hard": false}, "124": {"id": 124, "index": "008", "key": "008#124", "data_id": "67e0ed", "b_value": "TESTNET", "aria_label": "VEVTVE5FVA==", "C": "5d9ed3ab982066c2", "morse_key": "..... / -.. / ----. / . / -.. / ...-- / .- / -... / ----. / ---.. / ..--- / ----- / -.... / -.... / -.-. / ..---", "is_hard": false}, "125": {"id": 125, "index": "004", "key": "004#125", "data_id": "60fc49", "b_value": "MAINNET", "aria_label": "TUFJTk5FVA==", "C": "84d0a3cdec663968", "morse_key": "---.. / ....- / -.. / ----- / .- / ...-- / -.-. / -.. / . / -.-. / -.... / -.... / ...-- / ----. / -.... / ---..", "is_hard": false}, "126": {"id": 126, "index": "006", "key": "006#126", "data_id": "7c7cbd", "b_value": "UPGRADE", "aria_label": "VVBHUkFERQ==", "C": "e9b6cd6ac35facbb", "morse_key": ". / ----. / -... / -.... / -.-. / -.. / -.... / .- / -.-. / ...-- / ..... / ..-. / .- / -.-. / -... / -...", "is_hard": false}, "127": {"id": 127, "index": "020", "key": "020#127", "data_id": "e94133", "b_value": "TREASURY", "aria_label": "VFJFQVNVUlk=", "C": "019fda66be31ec22", "morse_key": "----- / .---- / ----. / ..-. / -.. / .- / -.... / -.... / -... / . / ...-- / .---- / . / -.-. / ..--- / ..---", "is_hard": false}, "128": {"id": 128, "index": "017", "key": "017#128", "data_id": "593f17", "b_value": "LAUNCHPAD", "aria_label": "TEFVTkNIUEFE", "C": "6bcd3afe0a3bc603", "morse_key": "-.... / -... / -.-. / -.. / ...-- / .- / ..-. / . / ----- / .- / ...-- / -... / -.-. / -.... / ----- / ...--", "is_hard": false}, "129": {"id": 129, "index": "025", "key": "025#129", "data_id": "7e191a", "b_value": "LIQUIDITY", "aria_label": "TElRVUlESVRZ", "C": "52349d44c48ce9a1", "morse_key": "..... / ..--- / ...-- / ....- / ----. / -.. / ....- / ....- / -.-. / ....- / ---.. / -.-. / . / ----. / .- / .----", "is_hard": false}, "130": {"id": 130, "index": "036", "key": "036#130", "data_id": "4ba72c", "b_value": "COLLATERAL", "aria_label": "Q09MTEFURVJBTA==", "C": "905c174c6f9697d1", "morse_key": "----. / ----- / ..... / -.-. / .---- / --... / ....- / -.-. / -.... / ..-. / ----. / -.... / ----. / --... / -.. / .----", "is_hard": false}, "131": {"id": 131, "index": "025", "key": "025#131", "data_id": "eda45f", "b_value": "BORROWING", "aria_label": "Qk9SUk9XSU5H", "C": "32c513e4fdc79640", "morse_key": "...-- / ..--- / -.-. / ..... / .---- / ...-- / . / ....- / ..-. / -.. / -.-. / --... / ----. / -.... / ....- / -----", "is_hard": false}, "132": {"id": 132, "index": "024", "key": "024#132", "data_id": "f3b7eb", "b_value": "TOKENIZE", "aria_label": "VE9LRU5JWkU=", "C": "e353c83f6735dbd1", "morse_key": ". / ...-- / ..... / ...-- / -.-. / ---.. / ...-- / ..-. / -.... / --... / ...-- / ..... / -.. / -... / -.. / .----", "is_hard": false}, "133": {"id": 133, "index": "034", "key": "034#133", "data_id": "3859a9", "b_value": "FRACTIONALIZE", "aria_label": "RlJBQ1RJT05BTElaRQ==", "C": "047bb4856fa9f658", "morse_key": "----- / ....- / --... / -... / -... / ....- / ---.. / ..... / -.... / ..-. / .- / ----. / ..-. / -.... / ..... / ---..", "is_hard": false}, "134": {"id": 134, "index": "093", "key": "093#134", "data_id": "f647e8", "b_value": "CUSTODIAN", "aria_label": "Q1VTVE9ESUFO", "C": "b0d050660edd1e01", "morse_key": "-... / ----- / -.. / ----- / ..... / ----- / -.... / -.... / ----- / . / -.. / -.. / .---- / . / ----- / .----", "is_hard": false}, "135": {"id": 135, "index": "025", "key": "025#135", "data_id": "a60521", "b_value": "ESCROW", "aria_label": "RVNDUk9X", "C": "bcb32fd72ea065d3", "morse_key": "-... / -.-. / -... / ...-- / ..--- / ..-. / -.. / --... / ..--- / . / .- / ----- / -.... / ..... / -.. / ...--", "is_hard": false}, "136": {"id": 136, "index": "014", "key": "014#136", "data_id": "a42aef", "b_value": "GEOSPATIAL", "aria_label": "R0VPU1BBVElBTA==", "C": "d4654d34788e8b5b", "morse_key": "-.. / ....- / -.... / ..... / ....- / -.. / ...-- / ....- / --... / ---.. / ---.. / . / ---.. / -... / ..... / -...", "is_hard": false}, "137": {"id": 137, "index": "023", "key": "023#137", "data_id": "8c9f37", "b_value": "SEMANTIC", "aria_label": "U0VNQU5USUM=", "C": "fa68c158d5b30bf4", "morse_key": "..-. / .- / -.... / ---.. / -.-. / .---- / ..... / ---.. / -.. / ..... / -... / ...-- / ----- / -... / ..-. / ....-", "is_hard": false}, "138": {"id": 138, "index": "023", "key": "023#138", "data_id": "d2e286", "b_value": "MULTIMODAL", "aria_label": "TVVMVElNT0RBTA==", "C": "4835aecb960aa999", "morse_key": "....- / ---.. / ...-- / ..... / .- / . / -.-. / -... / ----. / -.... / ----- / .- / .- / ----. / ----. / ----.", "is_hard": false}, "139": {"id": 139, "index": "023", "key": "023#139", "data_id": "bd7939", "b_value": "REALTIME", "aria_label": "UkVBTFRJTUU=", "C": "45a049479135179c", "morse_key": "....- / ..... / .- / ----- / ....- / ----. / ....- / --... / ----. / .---- / ...-- / ..... / .---- / --... / ----. / -.-.", "is_hard": false}, "140": {"id": 140, "index": "021", "key": "021#140", "data_id": "e5dbf1", "b_value": "STREAMING", "aria_label": "U1RSRUFNSU5H", "C": "77f7ddc3e8ce7087", "morse_key": "--... / --... / ..-. / --... / -.. / -.. / -.-. / ...-- / . / ---.. / -.-. / . / --... / ----- / ---.. / --...", "is_hard": false}, "141": {"id": 141, "index": "024", "key": "024#141", "data_id": "5a84b2", "b_value": "BIFURCATION", "aria_label": "QklGVVJDQVRJT04=", "C": "2e4ed6301be8d20a", "morse_key": "..--- / . / ....- / . / -.. / -.... / ...-- / ----- / .---- / -... / . / ---.. / -.. / ..--- / ----- / .-", "is_hard": false}, "142": {"id": 142, "index": "073", "key": "073#142", "data_id": "65575b", "b_value": "SUBSTRATE", "aria_label": "U1VCU1RSQVRF", "C": "326eaea48c074b82", "morse_key": "...-- / ..--- / -.... / . / .- / . / .- / ....- / ---.. / -.-. / ----- / --... / ....- / -... / ---.. / ..---", "is_hard": false}, "143": {"id": 143, "index": "018", "key": "018#143", "data_id": "f80ca0", "b_value": "PRIMITIVE", "aria_label": "UFJJTUlUSVZF", "C": "17575693cbe7eee1", "morse_key": ".---- / --... / ..... / --... / ..... / -.... / ----. / ...-- / -.-. / -... / . / --... / . / . / . / .----", "is_hard": false}, "144": {"id": 144, "index": "016", "key": "016#144", "data_id": "9b6acc", "b_value": "NATIVITY", "aria_label": "TkFUSVZJVFk=", "C": "020e67263a048ed7", "morse_key": "----- / ..--- / ----- / . / -.... / --... / ..--- / -.... / ...-- / .- / ----- / ....- / ---.. / . / -.. / --...", "is_hard": false}, "145": {"id": 145, "index": "025", "key": "025#145", "data_id": "7f6dd0", "b_value": "EMBODIED", "aria_label": "RU1CT0RJRUQ=", "C": "aed0581c6b43724d", "morse_key": ".- / . / -.. / ----- / ..... / ---.. / .---- / -.-. / -.... / -... / ....- / ...-- / --... / ..--- / ....- / -..", "is_hard": false}, "146": {"id": 146, "index": "023", "key": "023#146", "data_id": "c55ab9", "b_value": "COGNITIVE", "aria_label": "Q09HTklUSVZF", "C": "3787a952eeee6976", "morse_key": "...-- / --... / ---.. / --... / .- / ----. / ..... / ..--- / . / . / . / . / -.... / ----. / --... / -....", "is_hard": false}, "147": {"id": 147, "index": "016", "key": "016#147", "data_id": "b9c721", "b_value": "GROUNDED", "aria_label": "R1JPVU5ERUQ=", "C": "8dfbc7f27953ae78", "morse_key": "---.. / -.. / ..-. / -... / -.-. / --... / ..-. / ..--- / --... / ----. / ..... / ...-- / .- / . / --... / ---..", "is_hard": false}, "148": {"id": 148, "index": "024", "key": "024#148", "data_id": "88b72b", "b_value": "ADAPTIVE", "aria_label": "QURBUFRJVkU=", "C": "290c4e6a353cd440", "morse_key": "..--- / ----. / ----- / -.-. / ....- / . / -.... / .- / ...-- / ..... / ...-- / -.-. / -.. / ....- / ....- / -----", "is_hard": false}, "149": {"id": 149, "index": "070", "key": "070#149", "data_id": "792a0c", "b_value": "PREDICTIVE", "aria_label": "UFJFRElDVElWRQ==", "C": "9a499cb53c7da068", "morse_key": "----. / .- / ....- / ----. / ----. / -.-. / -... / ..... / ...-- / -.-. / --... / -.. / .- / ----- / -.... / ---..", "is_hard": false}, "150": {"id": 150, "index": "020", "key": "020#150", "data_id": "49860c", "b_value": "CRYPTOGRAPHIC", "aria_label": "Q1JZUFRPR1JBUEhJQw==", "C": "953ec7bc60d2e271", "morse_key": "----. / ..... / ...-- / . / -.-. / --... / -... / -.-. / -.... / ----- / -.. / ..--- / . / ..--- / --... / .----", "is_hard": false}, "151": {"id": 151, "index": "004", "key": "004#151", "data_id": "db8031", "b_value": "PRINCIPAL", "aria_label": "UFJJTkNJUEFM", "C": "0e128a272eb196b6", "morse_key": "----- / . / .---- / ..--- / ---.. / .- / ..--- / --... / ..--- / . / -... / .---- / ----. / -.... / -... / -....", "is_hard": false}, "152": {"id": 152, "index": "003", "key": "003#152", "data_id": "302ca0", "b_value": "FIDUCIARY", "aria_label": "RklEVUNJQVJZ", "C": "1c511248bfd8e7b0", "morse_key": ".---- / -.-. / ..... / .---- / .---- / ..--- / ....- / ---.. / -... / ..-. / -.. / ---.. / . / --... / -... / -----", "is_hard": false}, "153": {"id": 153, "index": "005", "key": "005#153", "data_id": "e6e352", "b_value": "INCEPTION", "aria_label": "SU5DRVBUSU9O", "C": "dc242c2279fd9bbf", "morse_key": "-.. / -.-. / ..--- / ....- / ..--- / -.-. / ..--- / ..--- / --... / ----. / ..-. / -.. / ----. / -... / -... / ..-.", "is_hard": false}, "154": {"id": 154, "index": "004", "key": "004#154", "data_id": "af7530", "b_value": "FULFILLMENT", "aria_label": "RlVMRklMTE1FTlQ=", "C": "d193abb74ea09545", "morse_key": "-.. / .---- / ----. / ...-- / .- / -... / -... / --... / ....- / . / .- / ----- / ----. / ..... / ....- / .....", "is_hard": false}, "155": {"id": 155, "index": "003", "key": "003#155", "data_id": "51c4b6", "b_value": "RESOLUTION", "aria_label": "UkVTT0xVVElPTg==", "C": "e5fe7a591bec9ce6", "morse_key": ". / ..... / ..-. / . / --... / .- / ..... / ----. / .---- / -... / . / -.-. / ----. / -.-. / . / -....", "is_hard": false}, "156": {"id": 156, "index": "003", "key": "003#156", "data_id": "63b40e", "b_value": "HARDWARE", "aria_label": "SEFSRFdBUkU=", "C": "37f1823fd2f707a0", "morse_key": "...-- / --... / ..-. / .---- / ---.. / ..--- / ...-- / ..-. / -.. / ..--- / ..-. / --... / ----- / --... / .- / -----", "is_hard": false}, "157": {"id": 157, "index": "005", "key": "005#157", "data_id": "4aeb10", "b_value": "FIRMWARE", "aria_label": "RklSTVdBUkU=", "C": "fbf3de6b60a66be2", "morse_key": "..-. / -... / ..-. / ...-- / -.. / . / -.... / -... / -.... / ----- / .- / -.... / -.... / -... / . / ..---", "is_hard": false}, "158": {"id": 158, "index": "005", "key": "005#158", "data_id": "137a6b", "b_value": "MIDDLEWARE", "aria_label": "TUlERExFV0FSRQ==", "C": "91f44a45bf78c7dd", "morse_key": "----. / .---- / ..-. / ....- / ....- / .- / ....- / ..... / -... / ..-. / --... / ---.. / -.-. / --... / -.. / -..", "is_hard": false}, "159": {"id": 159, "index": "004", "key": "004#159", "data_id": "de2e23", "b_value": "SENSOR", "aria_label": "U0VOU09S", "C": "1e630c91e4d737ea", "morse_key": ".---- / . / -.... / ...-- / ----- / -.-. / ----. / .---- / . / ....- / -.. / --... / ...-- / --... / . / .-", "is_hard": false}, "160": {"id": 160, "index": "003", "key": "003#160", "data_id": "89dae6", "b_value": "ACTUATOR", "aria_label": "QUNUVUFUT1I=", "C": "4b1f57d949231e64", "morse_key": "....- / -... / .---- / ..-. / ..... / --... / -.. / ----. / ....- / ----. / ..--- / ...-- / .---- / . / -.... / ....-", "is_hard": false}, "161": {"id": 161, "index": "003", "key": "003#161", "data_id": "594fbf", "b_value": "MANIPULATOR", "aria_label": "TUFOSVBVTEFUT1I=", "C": "c1c3b2f28e8475bd", "morse_key": "-.-. / .---- / -.-. / ...-- / -... / ..--- / ..-. / ..--- / ---.. / . / ---.. / ....- / --... / ..... / -... / -..", "is_hard": false}, "162": {"id": 162, "index": "004", "key": "004#162", "data_id": "056e13", "b_value": "LOCOMOTION", "aria_label": "TE9DT01PVElPTg==", "C": "49f45f962c1cecf8", "morse_key": "....- / ----. / ..-. / ....- / ..... / ..-. / ----. / -.... / ..--- / -.-. / .---- / -.-. / . / -.-. / ..-. / ---..", "is_hard": false}, "163": {"id": 163, "index": "007", "key": "007#163", "data_id": "16515c", "b_value": "PERCEPTION", "aria_label": "UEVSQ0VQVElPTg==", "C": "255b91ab05de7e1f", "morse_key": "..--- / ..... / ..... / -... / ----. / .---- / .- / -... / ----- / ..... / -.. / . / --... / . / .---- / ..-.", "is_hard": false}, "164": {"id": 164, "index": "004", "key": "004#164", "data_id": "80a902", "b_value": "TRAINING", "aria_label": "VFJBSU5JTkc=", "C": "1b62be8ce69deca6", "morse_key": ".---- / -... / -.... / ..--- / -... / . / ---.. / -.-. / . / -.... / ----. / -.. / . / -.-. / .- / -....", "is_hard": false}, "165": {"id": 165, "index": "003", "key": "003#165", "data_id": "406ae3", "b_value": "FINETUNING", "aria_label": "RklORVRVTklORw==", "C": "38961907be129f63", "morse_key": "...-- / ---.. / ----. / -.... / .---- / ----. / ----- / --... / -... / . / .---- / ..--- / ----. / ..-. / -.... / ...--", "is_hard": false}, "166": {"id": 166, "index": "015", "key": "015#166", "data_id": "e010bc", "b_value": "DISTILLATION", "aria_label": "RElTVElMTEFUSU9O", "C": "46a7696a85b1f5fc", "morse_key": "....- / -.... / .- / --... / -.... / ----. / -.... / .- / ---.. / ..... / -... / .---- / ..-. / ..... / ..-. / -.-.", "is_hard": false}, "167": {"id": 167, "index": "020", "key": "020#167", "data_id": "5fdd9b", "b_value": "ALIGNMENT", "aria_label": "QUxJR05NRU5U", "C": "8c093f7a724f8938", "morse_key": "---.. / -.-. / ----- / ----. / ...-- / ..-. / --... / .- / --... / ..--- / ....- / ..-. / ---.. / ----. / ...-- / ---..", "is_hard": false}, "168": {"id": 168, "index": "028", "key": "028#168", "data_id": "4f5547", "b_value": "INCENTIVE", "aria_label": "SU5DRU5USVZF", "C": "9f2d3159da1c6bb8", "morse_key": "----. / ..-. / ..--- / -.. / ...-- / .---- / ..... / ----. / -.. / .- / .---- / -.-. / -.... / -... / -... / ---..", "is_hard": false}, "169": {"id": 169, "index": "015", "key": "015#169", "data_id": "9ddca5", "b_value": "MECHANISM", "aria_label": "TUVDSEFOSVNN", "C": "8de79ed5ed6726a5", "morse_key": "---.. / -.. / . / --... / ----. / . / -.. / ..... / . / -.. / -.... / --... / ..--- / -.... / .- / .....", "is_hard": false}, "170": {"id": 170, "index": "015", "key": "015#170", "data_id": "ee82d4", "b_value": "EQUILIBRIUM", "aria_label": "RVFVSUxJQlJJVU0=", "C": "ed49b786b1760ce6", "morse_key": ". / -.. / ....- / ----. / -... / --... / ---.. / -.... / -... / .---- / --... / -.... / ----- / -.-. / . / -....", "is_hard": false}, "171": {"id": 171, "index": "093", "key": "093#171", "data_id": "68ee79", "b_value": "COOPERATION", "aria_label": "Q09PUEVSQVRJT04=", "C": "5f38730e6e15362a", "morse_key": "..... / ..-. / ...-- / ---.. / --... / ...-- / ----- / . / -.... / . / .---- / ..... / ...-- / -.... / ..--- / .-", "is_hard": false}, "172": {"id": 172, "index": "007", "key": "007#172", "data_id": "d481dd", "b_value": "STOCHASTIC", "aria_label": "U1RPQ0hBU1RJQw==", "C": "ff17741292449e3e", "morse_key": "..-. / ..-. / .---- / --... / --... / ....- / .---- / ..--- / ----. / ..--- / ....- / ....- / ----. / . / ...-- / .", "is_hard": false}, "173": {"id": 173, "index": "034", "key": "034#173", "data_id": "e43120", "b_value": "WEIGHTED", "aria_label": "V0VJR0hURUQ=", "C": "61588ad851f64394", "morse_key": "-.... / .---- / ..... / ---.. / ---.. / .- / -.. / ---.. / ..... / .---- / ..-. / -.... / ....- / ...-- / ----. / ....-", "is_hard": false}, "174": {"id": 174, "index": "018", "key": "018#174", "data_id": "c76d95", "b_value": "REBALANCE", "aria_label": "UkVCQUxBTkNF", "C": "817289fceb7ad35c", "morse_key": "---.. / .---- / --... / ..--- / ---.. / ----. / ..-. / -.-. / . / -... / --... / .- / -.. / ...-- / ..... / -.-.", "is_hard": false}, "175": {"id": 175, "index": "029", "key": "029#175", "data_id": "ec6f20", "b_value": "FINALITY", "aria_label": "RklOQUxJVFk=", "C": "f3cba434145277c3", "morse_key": "..-. / ...-- / -.-. / -... / .- / ....- / ...-- / ....- / .---- / ....- / ..... / ..--- / --... / --... / -.-. / ...--", "is_hard": false}, "176": {"id": 176, "index": "041", "key": "041#176", "data_id": "1f4f3d", "b_value": "THRESHOLD", "aria_label": "VEhSRVNIT0xE", "C": "8ba1d92b20bd0cb9", "morse_key": "---.. / -... / .- / .---- / -.. / ----. / ..--- / -... / ..--- / ----- / -... / -.. / ----- / -.-. / -... / ----.", "is_hard": false}, "177": {"id": 177, "index": "020", "key": "020#177", "data_id": "2904f1", "b_value": "PARAMETER", "aria_label": "UEFSQU1FVEVS", "C": "8bf2939391c124f5", "morse_key": "---.. / -... / ..-. / ..--- / ----. / ...-- / ----. / ...-- / ----. / .---- / -.-. / .---- / ..--- / ....- / ..-. / .....", "is_hard": false}, "178": {"id": 178, "index": "074", "key": "074#178", "data_id": "ac9ad8", "b_value": "INITIALIZE", "aria_label": "SU5JVElBTElaRQ==", "C": "2d98ae1d36c6386c", "morse_key": "..--- / -.. / ----. / ---.. / .- / . / .---- / -.. / ...-- / -.... / -.-. / -.... / ...-- / ---.. / -.... / -.-.", "is_hard": false}, "179": {"id": 179, "index": "020", "key": "020#179", "data_id": "df328d", "b_value": "PROPAGATE", "aria_label": "UFJPUEFHQVRF", "C": "480753ceb5aea153", "morse_key": "....- / ---.. / ----- / --... / ..... / ...-- / -.-. / . / -... / ..... / .- / . / .- / .---- / ..... / ...--", "is_hard": false}, "180": {"id": 180, "index": "161", "key": "161#180", "data_id": "3e487c", "b_value": "CHECKPOINT", "aria_label": "Q0hFQ0tQT0lOVA==", "C": "0ea9747519fa9675", "morse_key": "----- / . / .- / ----. / --... / ....- / --... / ..... / .---- / ----. / ..-. / .- / ----. / -.... / --... / .....", "is_hard": false}, "181": {"id": 181, "index": "024", "key": "024#181", "data_id": "7280f9", "b_value": "SNAPSHOT", "aria_label": "U05BUFNIT1Q=", "C": "4641d6c2849ff2ae", "morse_key": "....- / -.... / ....- / .---- / -.. / -.... / -.-. / ..--- / ---.. / ....- / ----. / ..-. / ..-. / ..--- / .- / .", "is_hard": false}, "182": {"id": 182, "index": "024", "key": "024#182", "data_id": "741e60", "b_value": "ROLLBACK", "aria_label": "Uk9MTEJBQ0s=", "C": "cc83c3d781acbf68", "morse_key": "-.-. / -.-. / ---.. / ...-- / -.-. / ...-- / -.. / --... / ---.. / .---- / .- / -.-. / -... / ..-. / -.... / ---..", "is_hard": false}, "183": {"id": 183, "index": "012", "key": "012#183", "data_id": "c777fc", "b_value": "REPLICATION", "aria_label": "UkVQTElDQVRJT04=", "C": "22ec0107fd0bd683", "morse_key": "..--- / ..--- / . / -.-. / ----- / .---- / ----- / --... / ..-. / -.. / ----- / -... / -.. / -.... / ---.. / ...--", "is_hard": false}, "184": {"id": 184, "index": "025", "key": "025#184", "data_id": "44bf02", "b_value": "SHARDING", "aria_label": "U0hBUkRJTkc=", "C": "af4c00a19384ec85", "morse_key": ".- / ..-. / ....- / -.-. / ----- / ----- / .- / .---- / ----. / ...-- / ---.. / ....- / . / -.-. / ---.. / .....", "is_hard": false}, "185": {"id": 185, "index": "013", "key": "013#185", "data_id": "4f4a21", "b_value": "PARTITION", "aria_label": "UEFSVElUSU9O", "C": "cb483c4233fa37fd", "morse_key": "-.-. / -... / ....- / ---.. / ...-- / -.-. / ....- / ..--- / ...-- / ...-- / ..-. / .- / ...-- / --... / ..-. / -..", "is_hard": false}, "186": {"id": 186, "index": "029", "key": "029#186", "data_id": "bca669", "b_value": "QUORUM", "aria_label": "UVVPUlVN", "C": "8e88310149b6235d", "morse_key": "---.. / . / ---.. / ---.. / ...-- / .---- / ----- / .---- / ....- / ----. / -... / -.... / ..--- / ...-- / ..... / -..", "is_hard": false}, "187": {"id": 187, "index": "036", "key": "036#187", "data_id": "0fd268", "b_value": "BYZANTINE", "aria_label": "QllaQU5USU5F", "C": "12e71d73a7d945e9", "morse_key": ".---- / ..--- / . / --... / .---- / -.. / --... / ...-- / .- / --... / -.. / ----. / ....- / ..... / . / ----.", "is_hard": false}, "188": {"id": 188, "index": "034", "key": "034#188", "data_id": "0ada6f", "b_value": "LIVENESS", "aria_label": "TElWRU5FU1M=", "C": "9037cd8b7f420d82", "morse_key": "----. / ----- / ...-- / --... / -.-. / -.. / ---.. / -... / --... / ..-. / ....- / ..--- / ----- / -.. / ---.. / ..---", "is_hard": false}, "189": {"id": 189, "index": "126", "key": "126#189", "data_id": "1b6e7d", "b_value": "SAFETY", "aria_label": "U0FGRVRZ", "C": "da7f216c041d7783", "morse_key": "-.. / .- / --... / ..-. / ..--- / .---- / -.... / -.-. / ----- / ....- / .---- / -.. / --... / --... / ---.. / ...--", "is_hard": false}, "190": {"id": 190, "index": "144", "key": "144#190", "data_id": "e9a474", "b_value": "VALIDITY", "aria_label": "VkFMSURJVFk=", "C": "62020383bb723a58", "morse_key": "-.... / ..--- / ----- / ..--- / ----- / ...-- / ---.. / ...-- / -... / -... / --... / ..--- / ...-- / .- / ..... / ---..", "is_hard": false}, "191": {"id": 191, "index": "100", "key": "100#191", "data_id": "ba91ec", "b_value": "INTEGRITY", "aria_label": "SU5URUdSSVRZ", "C": "f302556aacf886ab", "morse_key": "..-. / ...-- / ----- / ..--- / ..... / ..... / -.... / .- / .- / -.-. / ..-. / ---.. / ---.. / -.... / .- / -...", "is_hard": true}, "192": {"id": 192, "index": "037", "key": "037#192", "data_id": "901a08", "b_value": "AVAILABILITY", "aria_label": "QVZBSUxBQklMSVRZ", "C": "40ba69a2bcbd1061", "morse_key": "....- / ----- / -... / .- / -.... / ----. / .- / ..--- / -... / -.-. / -... / -.. / .---- / ----- / -.... / .----", "is_hard": true}, "193": {"id": 193, "index": "180", "key": "180#193", "data_id": "daa0cb", "b_value": "CONFIDENTIALITY", "aria_label": "Q09ORklERU5USUFMSVRZ", "C": "9b6a22b0fc41ea8c", "morse_key": "----. / -... / -.... / .- / ..--- / ..--- / -... / ----- / ..-. / -.-. / ....- / .---- / . / .- / ---.. / -.-.", "is_hard": true}, "194": {"id": 194, "index": "003", "key": "003#194", "data_id": "8ac88b", "b_value": "ACCOUNTABILITY", "aria_label": "QUNDT1VOVEFCSUxJVFk=", "C": "201b786d2a94a0b5", "morse_key": "..--- / ----- / .---- / -... / --... / ---.. / -.... / -.. / ..--- / .- / ----. / ....- / .- / ----- / -... / .....", "is_hard": true}, "195": {"id": 195, "index": "037", "key": "037#195", "data_id": "70ba7e", "b_value": "COMPOSABILITY", "aria_label": "Q09NUE9TQUJJTElUWQ==", "C": "98568b89222e55aa", "morse_key": "----. / ---.. / ..... / -.... / ---.. / -... / ---.. / ----. / ..--- / ..--- / ..--- / . / ..... / ..... / .- / .-", "is_hard": true}, "196": {"id": 196, "index": "155", "key": "155#196", "data_id": "f35f0b", "b_value": "EXTENSIBILITY", "aria_label": "RVhURU5TSUJJTElUWQ==", "C": "b966cde2210ecf2c", "morse_key": "-... / ----. / -.... / -.... / -.-. / -.. / . / ..--- / ..--- / .---- / ----- / . / -.-. / ..-. / ..--- / -.-.", "is_hard": true}, "197": {"id": 197, "index": "012", "key": "012#197", "data_id": "e5fa0f", "b_value": "MODULARITY", "aria_label": "TU9EVUxBUklUWQ==", "C": "1a07c8082e6ed6ac", "morse_key": ".---- / .- / ----- / --... / -.-. / ---.. / ----- / ---.. / ..--- / . / -.... / . / -.. / -.... / .- / -.-.", "is_hard": true}, "198": {"id": 198, "index": "022", "key": "022#198", "data_id": "92434c", "b_value": "SCALABILITY", "aria_label": "U0NBTEFCSUxJVFk=", "C": "523da6ac02db7eef", "morse_key": "..... / ..--- / ...-- / -.. / .- / -.... / .- / -.-. / ----- / ..--- / -.. / -... / --... / . / . / ..-.", "is_hard": true}, "199": {"id": 199, "index": "011", "key": "011#199", "data_id": "88eea1", "b_value": "RESILIENCE", "aria_label": "UkVTSUxJRU5DRQ==", "C": "e2d296fc3e1a1f49", "morse_key": ". / ..--- / -.. / ..--- / ----. / -.... / ..-. / -.-. / ...-- / . / .---- / .- / .---- / ..-. / ....- / ----.", "is_hard": true}, "200": {"id": 200, "index": "000", "key": "000#200", "data_id": "9f26c2", "b_value": "DECENTRALIZATION", "aria_label": "REVDRU5UUkFMSVpBVElPTg==", "C": "3401e4f6fa66d630", "morse_key": "...-- / ....- / ----- / .---- / . / ....- / ..-. / -.... / ..-. / .- / -.... / -.... / -.. / -.... / ...-- / -----", "is_hard": true}};
+
+const INFO_A = 'SHA256(INDEX#ID)[:6]';
+
+function openWhitepaper(){
+  document.getElementById('landing').classList.add('hidden');
+  document.getElementById('viewer').classList.add('visible');
+}
+function openTreasureMap(){ document.getElementById('treasureModal').classList.add('open'); }
+function closeTreasureMap(){
+  document.getElementById('treasureModal').classList.remove('open');
+}
+document.getElementById('treasureModal').addEventListener('click',e=>{ if(e.target===document.getElementById('treasureModal')) closeTreasureMap(); });
+
+async function sha256(s){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+const MORSE={
+  a:'.-',b:'-...',c:'-.-.',d:'-..',e:'.',f:'..-.',g:'--.',h:'....',i:'..',j:'.---',
+  k:'-.-',l:'.-..',m:'--',n:'-.',o:'---',p:'.--.',q:'--.-',r:'.-.',s:'...',t:'-',
+  u:'..-',v:'...-',w:'.--',x:'-..-',y:'-.--',z:'--..',
+  '0':'-----','1':'.----','2':'..---','3':'...--','4':'....-',
+  '5':'.....','6':'-....','7':'--...','8':'---..','9':'----.'
+};
+function morseHex(h){ return h.split('').map(c=>MORSE[c]||'').filter(Boolean).join(' / '); }
+
+</script>
+</body>
+</html>
